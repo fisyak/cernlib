@@ -1,0 +1,1695 @@
+---
+stages:
+  - build
+  - repack
+  - export
+  - free
+variables:
+  FREL: 0
+########################################################################
+# US .Fedora: &Fedora
+# US   only:
+# US     variables:
+# US       - $CI_SERVER_HOST=="gitlab.cern.ch"
+# US   stage: build
+########################################################################
+.CentOS: &CentOS
+  only:
+    variables:
+      - $CI_SERVER_HOST=="gitlab.cern.ch"
+  stage: build
+########################################################################
+.Ubuntu: &Ubuntu
+  only:
+    variables:
+      - $CI_SERVER_HOST=="gitlab.cern.ch"
+  stage: build
+########################################################################
+.Debian: &Debian
+  only:
+    variables:
+      - $CI_SERVER_HOST=="gitlab.cern.ch"
+  stage: build
+########################################################################
+.fullbuild-generic: &fullbuild-generic
+  - bash CI/build.sh imake tarball GNU nodebug OFF
+########################################################################
+.fullbuild-generic-xrootd: &fullbuild-generic-xrootd
+  - bash CI/build.sh imake tarball GNU nodebug ON
+########################################################################
+.fullbuild-rpm: &fullbuild-rpm
+  - sh CI/build.sh imake rpm  GNU nodebug OFF
+########################################################################
+.fullbuild-cmake: &fullbuild-cmake
+  - sed -i 's/CMAKE_VERBOSE_MAKEFILE ON/CMAKE_VERBOSE_MAKEFILE OFF/g' CMakeLists.txt
+  - sh CI/build.sh  cmake tarball GNU nodebug OFF
+########################################################################
+.fullbuild-cmake-rpm: &fullbuild-cmake-rpm
+  - sed -i 's/CMAKE_VERBOSE_MAKEFILE ON/CMAKE_VERBOSE_MAKEFILE OFF/g' CMakeLists.txt
+  - sh CI/build.sh  cmake rpm GNU nodebug OFF
+########################################################################
+.commoninstall: &commoninstall
+  - uname -a
+  - cat /etc/issue
+  - ulimit -n 1024
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL dnf*plu*  --exclude=*uploa* --exclude=*product* --exclude=*subscr* > rpm.log || (cat rpm.log && exit 1)
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL openssh-server make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip > rpm.log || (cat rpm.log && exit 1)
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh   > rpm.log || (cat rpm.log && exit 1)
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL lapack blas desktop-file-utils which wget bc automake  glibc-devel > rpm.log || (cat rpm.log && exit 1)
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL "libnsl*"  > rpm.log || (cat rpm.log && exit 1)
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL environment-modules  || true
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL libnsl  libnsl2-devel || true
+########################################################################
+.gccinstall: &gccinstall
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL  gcc gcc-c++ gcc-gfortran  > rpm.log || (cat rpm.log && exit 1)
+########################################################################
+.cmakeinstall: &cmakeinstall
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL  epel-release || true
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL  cmake3 || true
+  - yum -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL  cmake python3 openssl-libs openssl-devel chrpath  > rpm.log || (cat rpm.log && exit 1)
+########################################################################
+.devel32: &devel32
+    - yum -y install xbae-devel.i686 || true
+    - rpm -e openssl-devel --nodeps|| true
+    - yum -y install lapack.i686 blas.i686 > rpm.log || (cat rpm.log && exit 1)
+    - yum -y install lapack-devel.i686 blas-devel.i686 libgcc.i686  > rpm.log || (cat rpm.log && exit 1)
+    - yum -y install libnsl.i686 libXpm-devel.i686 libnsl2-devel.i686 libXfont2-devel.i686 libX11-devel.i686 libXft-devel.i686 motif-devel.i686 libXaw-devel.i686 libXau-devel.i686 glibc-devel.i686 libgfortran.i686 freetype-devel.i686   openssl-devel.i686 > rpm.log || (cat rpm.log && exit 1)
+#With appropriate privileges in docker, the RPM installation is
+#    - wget https://dl.fedoraproject.org/pub/epel/7/SRPMS/Packages/x/xbae-4.60.4-17.el7.src.rpm || true
+#    - CC='gcc -m32' CXX='g++ -m32' setarch i686 --32bit  rpmbuild --target=i686  --rebuild xbae-4.60.4-17.el7.src.rpm || true
+#    - rpm -e xbae xbae-devel || true
+#    - rpm -Uvh ~/rpmbuild/RPMS/i686/xbae*i686.rpm || true
+#Otherwise:
+#    - wget http://downloads.sourceforge.net/xbae/xbae-4.60.4.tar.gz
+#    - ls -alh
+    - cp CI/xbae-4.60.4.tar.gz ./
+    - tar -zxf  xbae-4.60.4.tar.gz
+    - cd  xbae-4.60.4
+    - CC='gcc -m32' CXX='g++ -m32' ./configure --prefix=/usr --libdir=/usr/lib --disable-static --disable-dependency-tracking ||true
+    - make -j 2 || true
+    - make -j 2 install || true
+    - cd ..
+
+########################################################################
+# US Fedora37-gcc-imake-gen-64bit:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   variables:
+# US     FREL: 37
+# US   extends: .Fedora
+# US   before_script:
+# US     - *commoninstall
+# US     - *gccinstall
+# US   script:
+# US     - sh CI/build.sh imake tarball GNU nodebug
+# US   cache:
+# US     key: yum-cache-$FREL
+# US     paths:
+# US       - yum-cache-$FREL/
+# US   artifacts:
+# US     paths:
+# US       - cern/
+# US 
+# US Fedora37-gcc-imake-gen-64bit-pub:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   stage: repack
+# US   when: manual
+# US   dependencies:
+# US     - Fedora37-gcc-imake-gen-64bit
+# US   script:
+# US     export kind=imake; CI/repack.sh
+# US   artifacts:
+# US     paths:
+# US       - cern
+# US 
+# US ########################################################################
+# US Fedora37-gcc-imake-rpm-64bit:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   variables:
+# US     FREL: 37
+# US   extends: .Fedora
+# US   before_script:
+# US     - *commoninstall
+# US     - *gccinstall
+# US     - *cmakeinstall
+# US   script:
+# US     - sh CI/build.sh imake rpm GNU nodebug
+# US   cache:
+# US     key: yum-cache-$FREL
+# US     paths:
+# US       - yum-cache-$FREL/
+# US   artifacts:
+# US     paths:
+# US       - rpmbuild/RPMS
+#######################################################################
+Ubuntu20-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  variables:
+    FREL: U20
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - ls
+  script:
+    - *fullbuild-generic
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu20-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu20-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+Ubuntu20-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  variables:
+    FREL: U20
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu20-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu20-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+Ubuntu22-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  variables:
+    FREL: U22
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+  script:
+    - *fullbuild-generic
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu22-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu22-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu22-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  variables:
+    FREL: U22
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu22-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu22-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu22-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  variables:
+    FREL: U22
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu22-gcc-cmake-gen-64bit-pub-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu22-gcc-cmake-gen-64bit-xrootd
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu24-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  variables:
+    FREL: U24
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+
+  script:
+    - *fullbuild-generic
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu24-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu24-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu24-gcc-imake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  variables:
+    FREL: U24
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+
+  script:
+    - CI/build.sh imake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu24-gcc-imake-gen-64bit-xrootd-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu24-gcc-imake-gen-64bit-xrootd
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu24-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  variables:
+    FREL: U24
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu24-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu24-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Ubuntu24-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  variables:
+    FREL: U24
+  extends: .Ubuntu
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu24-gcc-cmake-gen-64bit-pub-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  stage: repack
+  when: manual
+  dependencies:
+    - Ubuntu24-gcc-cmake-gen-64bit-xrootd
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Debian12-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  extends: .Debian
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern
+
+Debian12-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  stage: repack
+  when: manual
+  dependencies:
+    - Debian12-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Debian12-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  extends: .Debian
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++   apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern
+
+Debian12-gcc-cmake-gen-64bit-pub-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  stage: repack
+  when: manual
+  dependencies:
+    - Debian12-gcc-cmake-gen-64bit-xrootd
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+#SL3-gcc-imake-gen-32bit:
+# US: Removing this target for now since it doesn't work in the
+#     pipleline due to the version of bash. The error is this:
+#      # set -o pipefail
+#      # bash: set: pipefail: invalid option name
+#
+#  image: gitlab-registry.cern.ch/delphi/docker/sl3_32:ext
+#  variables:
+#    FREL: SL3
+#  extends: .CentOS
+#  script:
+#    - *gccexport
+#    - sh make_cernlib 32bit
+#  allow_failure: true
+
+#######################################################################
+SL4-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-gcc-imake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-gcc-imake-gen-32bit
+  script:
+    export kind=imake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL4-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL5-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_32:ext
+  variables:
+    FREL: SL5
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL5-gcc-imake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL5-gcc-imake-gen-32bit
+  script:
+    export kind=imake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+
+#######################################################################
+SL5-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  variables:
+    FREL: SL5
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL5-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL5-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL6-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  variables:
+    FREL: SL6
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL6-gcc-imake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL6-gcc-imake-gen-32bit
+  script:
+    export kind=imake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL6-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_64:ext
+  variables:
+    FREL: SL6
+  extends: .CentOS
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL6-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL6-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+#Centos8-gcc-imake-gen-64bit:
+#  tags:
+#    - k8s-default
+#  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs8
+#  variables:
+#    FREL: C8
+#  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#  script:
+#    - sh CI/build.sh imake tarball GNU nodebug OFF
+#  allow_failure: false
+#  artifacts:
+#    paths:
+#      - cern
+########################################################################
+#Centos8-gcc-imake-gen-32bit:
+#  tags:
+#    - k8s-default
+#  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs8
+#  variables:
+#    FREL: C8
+#  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#    - *devel32
+#  script:
+#    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+#  allow_failure: false
+#  artifacts:
+#    paths:
+#      - cern
+#######################################################################
+Centos9-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  variables:
+    FREL: C9
+  extends: .CentOS
+  before_script:
+    - *commoninstall
+    - *gccinstall
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+Centos9-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  variables:
+    FREL: C9
+  extends: .CentOS
+  before_script:
+    - *commoninstall
+    - *gccinstall
+    - *devel32
+  script:
+    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+Centos9-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  variables:
+    FREL: C9
+  extends: .CentOS
+  before_script:
+    - *commoninstall
+    - *gccinstall
+    - *devel32
+  script:
+    - sh CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+########################################################################
+# US Fedora37-gcc-cmake-gen-64bit:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   variables:
+# US     FREL: 37
+# US   extends: .Fedora
+# US   before_script:
+# US     - *commoninstall
+# US     - *gccinstall
+# US     - *cmakeinstall
+# US   script:
+# US     - sh CI/build.sh cmake tarball GNU nodebug
+# US   cache:
+# US     key: yum-cache-$FREL
+# US     paths:
+# US       - yum-cache-$FREL/
+# US   artifacts:
+# US     paths:
+# US       - cern
+# US 
+# US Fedora37-gcc-cmake-gen-64bit-pub:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   stage: repack
+# US   when: manual
+# US   dependencies:
+# US     - Fedora37-gcc-cmake-gen-64bit
+# US   script:
+# US     export kind=cmake; CI/repack.sh
+# US   artifacts:
+# US     paths:
+# US       - cern
+# US 
+# US ########################################################################
+# US Fedora37-gcc-cmake-rpm-64bit:
+# US   tags:
+# US     - k8s-default
+# US   image: fedora:37
+# US   variables:
+# US     FREL: 37
+# US   extends: .Fedora
+# US   before_script:
+# US     - *commoninstall
+# US     - *gccinstall
+# US     - *cmakeinstall
+# US   script:
+# US     - sh CI/build.sh cmake rpm GNU nodebug
+# US   cache:
+# US     key: yum-cache-$FREL
+# US     paths:
+# US       - yum-cache-$FREL/
+# US   artifacts:
+# US     paths:
+# US       - rpmbuildcmake/RPMS
+#######################################################################
+Alma9-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  variables:
+    FREL: AL9
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma9-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma9-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  variables:
+    FREL: AL9
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-64bit-pub-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma9-gcc-cmake-gen-64bit-xrootd
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma9-gcc-cmake-gen-aarch64:
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  tags:
+    - k8s-arm
+  variables:
+    FREL: AL9-aarch64
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-aarch64-pub:
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma9-gcc-cmake-gen-aarch64
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma9-gcc-cmake-gen-aarch64-xrootd:
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  tags:
+    - k8s-arm
+  variables:
+    FREL: AL9-aarch64
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-aarch64-pub-xrootd:
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma9-gcc-cmake-gen-aarch64-xrootd
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma8-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  variables:
+    FREL: AL8
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled powertools
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma8-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma8-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma8-gcc-cmake-gen-aarch64:
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8-aarch64
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  tags:
+    - k8s-arm
+  variables:
+    FREL: AL8-aarch64
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled powertools
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma8-gcc-cmake-gen-aarch64-pub:
+  tags:
+    - k8s-arm
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8-aarch64
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  tags:
+    - k8s-arm
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma8-gcc-cmake-gen-aarch64
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma9-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  variables:
+    FREL: AL9
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+    - *devel32
+  script:
+    - sh CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma9-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma8-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  variables:
+    FREL: AL8
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled powertools
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+    - *devel32
+  script:
+    - sh CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma8-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  stage: repack
+  when: manual
+  dependencies:
+    - Alma8-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+#Centos8-gcc-cmake-gen-64bit:
+#  tags:
+#    - k8s-default
+#  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs8
+#  variables:
+#    FREL: C8
+#  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#    - *cmakeinstall
+#  script:
+#    - sh CI/build.sh cmake tarball GNU nodebug OFF
+########################################################################
+#Centos8-gcc-cmake-rpm-64bit:
+#  tags:
+#    - k8s-default
+#  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs8
+#  variables:
+#    FREL: C8
+#  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#    - *cmakeinstall
+#  script:
+#    - sh CI/build.sh cmake rpm GNU nodebug OFF
+#######################################################################
+Centos7-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  variables:
+    FREL: CC7
+  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - Centos7-gcc-imake-gen-64bit
+  script:
+    export kind=imake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Centos7-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  variables:
+    FREL: C7
+  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#    - *devel32
+  script:
+    - sh CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-imake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - Centos7-gcc-imake-gen-32bit
+  script:
+    export kind=imake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Centos7-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  variables:
+    FREL: CC7
+  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - Centos7-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Centos7-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  variables:
+    FREL: C7
+  extends: .CentOS
+#  before_script:
+#    - *commoninstall
+#    - *gccinstall
+#    - *devel32
+  script:
+    - sh CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - Centos7-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL6-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  variables:
+    FREL: SL6
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL6-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL6-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL6-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_64:ext
+  variables:
+    FREL: SL6
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL6-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL6-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL6-gcc-cmake-rpm-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_64:ext
+  variables:
+    FREL: SL6
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake rpm GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+SL5-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_32:ext
+  variables:
+    FREL: SL5
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL5-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL5-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+SL5-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  variables:
+    FREL: SL5
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL5-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL5-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL5-gcc-cmake-rpm-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  variables:
+    FREL: SL5
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake rpm GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+#######################################################################
+SL4-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU4 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-gcc-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-gcc-cmake-gen-64bit
+  script:
+    export kind=cmake; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL4-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU4 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-gcc-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-gcc-cmake-gen-32bit
+  script:
+    export kind=cmake; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL4-g77-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU3 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-g77-cmake-gen-32bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_32:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-g77-cmake-gen-32bit
+  script:
+    export kind=cmake-g77; export LEGACY=-m32; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL4-g77-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+#  only:
+#    variables:
+#     - $CI_COMMIT_MESSAGE =~ /all/ ||  $CI_COMMIT_MESSAGE =~ /SL4/ ||  $CI_COMMIT_MESSAGE =~ /g77/ ||  $CI_COMMIT_MESSAGE =~ /cmake/||  $CI_COMMIT_MESSAGE =~ /gen/  ||  $CI_COMMIT_MESSAGE =~ /64bit/
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake tarball GNU3 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-g77-cmake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  stage: repack
+  when: manual
+  dependencies:
+    - SL4-g77-cmake-gen-64bit
+  script:
+    export kind=cmake-g77; CI/repack.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+SL4-g77-cmake-rpm-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+#  only:
+#    variables:
+#     - $CI_COMMIT_MESSAGE =~ /all/ ||  $CI_COMMIT_MESSAGE =~ /SL4/ ||  $CI_COMMIT_MESSAGE =~ /g77/ ||  $CI_COMMIT_MESSAGE =~ /cmake/||  $CI_COMMIT_MESSAGE =~ /gen/  ||  $CI_COMMIT_MESSAGE =~ /64bit/
+  variables:
+    FREL: SL4
+  extends: .CentOS
+  script:
+    - sh CI/build.sh cmake rpm GNU3 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - rpmbuildcmake/RPMS
+#######################################################################
+Centos8-nvc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs8
+  only:
+    variables:
+     - $CI_COMMIT_MESSAGE =~ /NVIDIA/
+  variables:
+    FREL: C8
+  extends: .CentOS
+  before_script:
+    - *commoninstall
+    - *gccinstall
+    - yum-config-manager -y --add-repo https://developer.download.nvidia.com/hpc-sdk/rhel/nvhpc.repo
+    - yum install -y nvhpc-22.5
+  script:
+    - sh CI/build.sh cmake tarball NVIDIA nodebug OFF
+#######################################################################
+Export:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: export
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Alma8-gcc-cmake-gen-32bit-pub
+    - Alma8-gcc-cmake-gen-64bit-pub
+    - Alma8-gcc-cmake-gen-aarch64-pub
+    - Alma9-gcc-cmake-gen-32bit-pub
+    - Alma9-gcc-cmake-gen-64bit-pub
+    - Alma9-gcc-cmake-gen-aarch64-pub
+    - Centos7-gcc-cmake-gen-32bit-pub
+    - Centos7-gcc-cmake-gen-64bit-pub
+    - Centos7-gcc-imake-gen-32bit-pub
+    - Centos7-gcc-imake-gen-64bit-pub
+    - Debian12-gcc-cmake-gen-64bit-pub
+#    - Fedora37-gcc-cmake-gen-64bit-pub
+#    - Fedora37-gcc-imake-gen-64bit-pub
+    - SL4-g77-cmake-gen-32bit-pub
+    - SL4-g77-cmake-gen-64bit-pub
+    - SL4-gcc-cmake-gen-32bit-pub
+    - SL4-gcc-cmake-gen-64bit-pub
+    - SL4-gcc-imake-gen-32bit-pub
+    - SL4-gcc-imake-gen-64bit-pub
+    - SL5-gcc-cmake-gen-32bit-pub
+    - SL5-gcc-cmake-gen-64bit-pub
+    - SL5-gcc-imake-gen-32bit-pub
+    - SL5-gcc-imake-gen-64bit-pub
+    - SL6-gcc-cmake-gen-32bit-pub
+    - SL6-gcc-cmake-gen-64bit-pub
+    - SL6-gcc-imake-gen-32bit-pub
+    - SL6-gcc-imake-gen-64bit-pub
+    - Ubuntu20-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-imake-gen-64bit-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-pub
+    - Ubuntu22-gcc-imake-gen-64bit-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-pub
+    - Ubuntu24-gcc-imake-gen-64bit-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    export kind=cmake; CI/move2eos.sh
+
+free:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: free
+  when: manual
+  allow_failure: true
+  script:
+    - dnf -y install which
+    - mkdir -p ~/.ssh
+    - ls ~/.ssh
+    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
+    - ls -lah .secure_files
+    - cp -r .secure_files/* ~/.ssh
+    - chmod 400 ~/.ssh/id_rsa
+    - sh CI/createfree.sh  $CI_COMMIT_REF_NAME $HOME ssh://git@gitlab.cern.ch:7999/averbyts/cernlib-free-test.git cernlib-free-test
