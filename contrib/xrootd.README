@@ -1,0 +1,35 @@
+# Using the ROOT protocol in CERNLIB
+
+The SHIFT code was implemented to allow code linked with CERNLIB to read data directly from CASTOR at CERN. The data was access via the RFIO protocol, and worked by overriding the POSIX file system functions. The same mechanism can be used for xrootd.
+
+## XrootD POSIX libraries
+
+The XrootD toolkit provides very similar functionality via the XrdPosix header files. This is documented here:
+
+Documentation: https://github.com/xrootd/xrootd/blob/master/src/XrdPosix/README
+
+Dynamic linking as described in the above README does not work properly with CERNLIB. It's cleaner to interface CERNLIB directly with XrdPosix instead.
+
+Some issues have been encountered by doing so:
+
+* XrootD is written in and for C++, while CERNLIB relies on plain C
+* While XrdPosix.hh and XrdPosixExtern.hh check if they are called in C or C++ context, the C context implementation is effectively broken. Specifically, XrdPosixExtern.hh will try to read the C++ wrapper for stdio.h
+* The order in which things are defined in C context in the two header files breaks after gcc 11 and later when including dirent.h.
+* 64bit calls in XrdPosixExtern.hh are partly wrong, e.g. the use of "long long int" clashes with definitions in stdio.h.
+
+On the other hand, the two headers have not been touched for a long time. A fixed version has hence been imported into CERNLIB.  
+
+## Other notes:
+* XrootD is compiled with options -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64. These are added via CMake if CERNLIB_SHIFT is enabled.
+* The patch does not support Imake for the time being
+* Application executables have to be linked with the XrdPosix libraries
+
+## ROOT protocol syntax and CERNLIB executables 
+
+pawX11 (and maybe others) does not like the URL syntax. A work around is to set XROOTD_VMP accordingly. After setting
+
+```
+export XROOTD_VMP=eospublic.cern.ch:/eos=/eos
+```
+
+it is possible to read files from the opendata area by quoting the full path, as if the file was local.
