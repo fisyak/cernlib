@@ -1,0 +1,14 @@
+SRCS_F= ranf.F ranget.F
+
+#if defined(CERNLIB_DECS) && !defined(CERNLIB_QMVAOS)
+FDEBUGFLAGS=NoOpFortranDebugFlags
+#endif
+
+#if defined(CERNLIB_LINUX)
+/* -O3 optimization breaks in g77 3.2 */
+SpecialFortranLibObjectRule(ranget,ranget,-O0,NullParameter)
+#endif
+
+FORTRANSAVEOPTION=FortranSaveFlags
+
+SubdirLibraryTarget(NullParameter,NullParameter)

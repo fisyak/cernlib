@@ -1,0 +1,22 @@
+INCLUDES=	blank.inc gc10ev.inc gclund.inc gcpoly.inc gcvol1.inc gtlist.inc gversc.inc mparam.inc s_coscom.inc \ @@\
+	camass.inc gcasho.inc gcmate.inc gcpotm.inc gcvol2.inc gtmutr.inc hetc5.inc mpifinc.inc s_csdat.inc \ @@\
+	cerrcm.inc gcbank.inc gcmulo.inc gcpush.inc gcvolu.inc gtnum.inc hetc7.inc mpoint.inc s_csdim.inc \ @@\
+	cgcaan.inc gccurs.inc gcmutr.inc gcrayt.inc gcxlun.inc gtopti.inc hettp.inc mpstor.inc s_curpar.inc \ @@\
+	cgcedg.inc gccuts.inc gcmzfo.inc gcrz.inc gfkdis.inc gtpara.inc incdek.inc mrecoi.inc s_defcom.inc \ @@\
+	cgcfac.inc gcdlin.inc gcnmec.inc gcscal.inc gsecti.inc gtparm.inc limits.inc multiprox.inc s_errcom.inc \ @@\
+	cgctra.inc gcdraw.inc gcnum.inc gcscan.inc gtasho.inc gtphys.inc ludat1.inc multseeds.inc s_event.inc \ @@\
+	cgdelt.inc gcfdim.inc gcomis.inc gcsetf.inc gtbank.inc gtpixe.inc ludat3.inc mupsca.inc s_genio.inc \ @@\
+	cggpar.inc gcflag.inc gconsp.inc gcsets.inc gtcons.inc gtrayt.inc lujets.inc mxgkgh.inc s_kginit.inc \ @@\
+	cghpar.inc gcgobj.inc gconst.inc gcshno.inc gtcurs.inc gtscal.inc mapat.inc nuciod.inc s_mat.inc \ @@\
+	cgxcom.inc gchil2.inc gcopti.inc gcshpt.inc gtcuts.inc gtscan.inc mapoll.inc papropt.inc s_nucio.inc \ @@\
+	cmagic.inc gchiln.inc gcpara.inc gcspee.inc gtdraw.inc gtsets.inc mconst.inc part2t.inc s_prntfl.inc \ @@\
+	cmass.inc gchvir.inc gcparm.inc gcstak.inc gtfdim.inc gtspee.inc mcreco.inc partt.inc s_result.inc \ @@\
+	comcont.inc gcjloc.inc gcphnr.inc gcstra.inc gtflag.inc gtstak.inc mcross.inc pawc.inc trcom3.inc \ @@\
+	crandm.inc gcjump.inc gcphpr.inc gctime.inc gthil2.inc gttmed.inc mgamma.inc pawct.inc \ @@\
+	eropts.inc gckine.inc gcphrd.inc gctmed.inc gthiln.inc gttrak.inc minput.inc pcodat.inc \ @@\
+	ertrio.inc gcking.inc gcphxs.inc gctrak.inc gthvir.inc gtursb.inc mmass.inc pcodim.inc \ @@\
+	erwork.inc gckmax.inc gcphys.inc gcunit.inc gtjump.inc gtvdma.inc mmicab.inc s_blank.inc \ @@\
+	fheavyt.inc gclink.inc gcpixe.inc gcursb.inc gtkine.inc gtvol1.inc mmicap.inc s_blankp.inc \ @@\
+	forcn.inc gclist.inc gcpmxz.inc gcvdma.inc gtlink.inc gtvolu.inc mnutrn.inc s_consts.inc pilot.h
+
+InstallIncludes($(INCLUDES),$(CERN_INCLUDEDIR),geant321)

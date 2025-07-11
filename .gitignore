@@ -1,0 +1,6 @@
+build
+cern
+lapack/BLAS/SRC/*.o
+lapack/SRC/*.o
+# any additional user log files
+*.out.txt

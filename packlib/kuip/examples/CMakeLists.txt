@@ -1,0 +1,5 @@
+cdf_compile(${CMAKE_CURRENT_SOURCE_DIR}/uprogcdf.cdf  ${CMAKE_CURRENT_BINARY_DIR}/uprogcdf.cdf.c)
+CLCernlibFortranProgramTarget(ktest "uprog.F" "L"  ${X11_LIBRARIES}  graflib_static packlib_static kernlib_static higz_static)
+target_sources(ktest PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/uprogcdf.cdf.c)
+CLATestTarget("ktest < ktest.inp")
+CopyFile(kuipct.inp ktest.inp)
