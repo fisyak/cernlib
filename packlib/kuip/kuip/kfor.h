@@ -1038,19 +1038,22 @@ extern LOGICAL ku_true( int return_true );
                  extern SUBROUTINE Goparm;
 
 #define  Iclrwk           F77_NAME(iclrwk,ICLRWK)
-                 extern SUBROUTINE Iclrwk;
+                 extern void Iclrw(INTEGER*,INTEGER*);
 #define  Iginit           F77_NAME(iginit,IGINIT)
-                 extern SUBROUTINE Iginit;
+                 extern void Iginit(int*);
 #define  Igmenu           F77_NAME(igmenu,IGMENU)
-                 extern SUBROUTINE Igmenu;
+                 extern void Igmenu(int *, const char *, int ,
+                                    REAL *, REAL *, REAL *, REAL *, int *, const char *, int, int* ,
+                                    const char *, int, const char *, int, const char *, int,
+                                    int *, const char *, int);
 #define  Igrng            F77_NAME(igrng,IGRNG)
-                 extern SUBROUTINE Igrng;
+                 extern void Igrng(REAL*,REAL*);
 #define  Igsse            F77_NAME(igsse,IGSSE)
-                 extern SUBROUTINE Igsse;
+                 extern void Igsse(int*,int*);
 #define  Igsrap           F77_NAME(igsrap,IGSRAP)
-                 extern SUBROUTINE Igsrap;
+                 extern void Igsrap(REAL*);
 #define  Igwkty           F77_NAME(igwkty,IGWKTY)
-                 extern SUBROUTINE Igwkty;
+                 extern void Igwkty(int*);
 
 #define  Kcexec           F77_NAME(kcexec,KCEXEC)
 

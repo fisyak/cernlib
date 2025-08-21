@@ -16,9 +16,9 @@ void getwdi_(fname, lgname)
       int  *lgname;
 {
       char *ptalc, *pttext;
-      int  fchput();
+      int  fchput(const char*,const char*,int);
       int  nalc;
-      char *getwd();
+      char *getwd(const char*);
 
       pttext = NULL;
       nalc   = 2048;

@@ -73,12 +73,41 @@ char *osf;
         char r[MAXINFO+1];
 #ifndef WIN32
         struct utsname u;
-        int i;
+        int i,k,l;
         if (uname(&u)) return(-1);
+        /* We might have info from uname with more than MAXHOST / MAXINFO characters,  */
+        /* so we must protect q and r against buffer overflows */
+        /* We don't want to increase MAXHOST, as this might effect the server ... */
+        /* brute force :) */
+        u.nodename[MAXHOST]='\0';
         sprintf(q,"%-*s",MAXHOST,u.nodename);
         strncpy(hnf,q,MAXHOST);
+        u.machine[MAXINFO]='\0';
         sprintf(r,"%-*s",MAXINFO,u.machine);
         strncpy(htf,r,MAXINFO);
+        i = strlen(u.sysname);
+        if ( i > 60 ){
+        	/* sysname plus two spaces already fill p */
+        	u.sysname[61]='\0';
+        	u.release[0]='\0';
+        	u.version[0]='\0';
+        } 
+        else{
+        	k = strlen(u.release);
+        	if ( i + k > 60 ){
+        	    /* we only have space for part of release */
+	        	u.release[61-i]='\0';
+    	    	u.version[0]='\0';
+    		}
+    		else{
+        		i = i + k;
+    			/* we only have space for a bit of version */
+    			k = strlen(u.version);
+    			if ( i + k > 60 ){
+	        		u.version[61-i]='\0';
+	        	}
+    		}
+    	} 
         sprintf(p,"%s %s %s",u.sysname,u.release,u.version);
 #else
        OSVERSIONINFO OsVersion;

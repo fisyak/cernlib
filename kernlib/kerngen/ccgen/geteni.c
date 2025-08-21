@@ -54,9 +54,9 @@ void type_of_call geteni(fname, ftext, lgtext, lgname)
 #endif
       int  *lgtext, *lgname;
 {
-      char *ptname, *fchtak();
-      char *pttext, *getenv();
-      int  fchput();
+      char *ptname, *fchtak(char*, int);
+      char *pttext, *getenv(const char*);
+      int  fchput(const char*, const char*,int);
 
       pttext = NULL;
       ptname = fchtak(fname,*lgname);

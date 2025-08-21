@@ -35,7 +35,7 @@
 
 #define verdir {version}
 %define verdir 2025
-%define verdatadir 2025.02
+%define verdatadir 2025.07
 
 # data files should be the same and therefore parallel installable
 
@@ -600,6 +600,8 @@ touch --no-create %{_datadir}/icons/hicolor || :
 %endif
 
 %changelog
+* Thu Jul 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-07
+ - multiple bug fixes
 * Mon Feb 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-02
  - Add support for reading data using xrootd
 * Wed Jun 12 2024 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2024-06

@@ -5,7 +5,7 @@ C-    File operations :
 C-    MODE = 1 :  delete file CHFILE
 C-           2 :  change name of file CHFILE to CHFILE.bak
 
-      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT,MMSLAT(36)
+      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT,MMSLAT(76)
 
       CHARACTER    CHFILE*(*), CHBAK*256
       LOGICAL      THERE

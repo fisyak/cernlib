@@ -23,22 +23,29 @@
      CLOCK  encoded time (returned by, e.g. STATF)
      STIME  decoded time string of length 24 (CHARACTER*24 STIME)
 */
+#if defined(CERNLIB_LINUX)
+#include <time.h>
+#endif
 #if defined(CERNLIB_QX_SC)
 #include <stdlib.h>
 #include <string.h>
-void type_of_call ctimef_(clock, stime)
+void type_of_call ctimef_(cclock, stime)
 #endif
 #if defined(CERNLIB_QXNO_SC)
-void type_of_call ctimef(clock, stime)
+void type_of_call ctimef(cclock, stime)
 #endif
 #if defined(CERNLIB_QXCAPT)
-void type_of_call CTIMEF(clock, stime)
+void type_of_call CTIMEF(cclock, stime)
 #endif
-int  *clock;
+int *cclock;
 char *stime;
 {
-    char *ctime();
+#if defined(CERNLIB_LINUX)
+  strncpy(stime,ctime((const time_t *)cclock),24);
+#else
+    char *ctime(char*,char*,int);
 
-    strncpy(stime,ctime(clock),24);
+    strncpy(stime,ctime(cclock,NULL,0),24);
+#endif
 }
 /*> END <----------------------------------------------------------*/

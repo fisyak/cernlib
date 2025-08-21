@@ -4,7 +4,7 @@ C
 C CERN PROGLIB# M410    USET            .VERSION KERNFOR  4.08  840613
 C ORIG. 15/03/68
 C
-      COMMON/SLATE/ND,JEND,DUMMY(38)
+      COMMON/SLATE/ND,JEND,DUMMY(78)
       DIMENSION IC(80),NUM(11)
       DATA  NUM   /4H    ,4H0   ,4H1   ,4H2   ,4H3   ,4H4   ,4H5   ,
      +                           4H6   ,4H7   ,4H8   ,4H9    /

@@ -36,10 +36,3 @@
 #define CERNLIB_QHOLL
 #define CERNLIB_QTRHOLL
 #endif
-
-#if (!defined(CERNLIB_IPSC)) && (!defined(CERNLIB_MSDOS))
-#ifndef CERNLIB_CZ
-#define CERNLIB_CZ
-#endif
-#endif
-

@@ -75,6 +75,8 @@ int len_hnf;
         char q[MAXHOST+1];
  
         if (uname(&u) < 0) return(-1);
+        /* Make sure u.nodename does not overflow q, brute force */
+        u.nodename[MAXHOST+1]='\0';
         sprintf(q,"%-*s",MAXHOST,u.nodename);
 #endif
         strncpy(hnf,q,i);

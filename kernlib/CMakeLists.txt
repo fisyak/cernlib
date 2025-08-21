@@ -144,8 +144,10 @@ if (NOT CERNLIB_VAXVMS)
   set(kernlib_kerngen_ccgen_FSRC accessf.F chdirf.F getenvf.F getwdf.F lstatf.F perrorf.F readlnf.F renamef.F setenvf.F statf.F systemf.F tmpro.F toslat.F unlinkf.F)
 #The file below does not exist in this dir, use C version
 #tmproi.F
-  set(kernlib_kerngen_ccgen_CSRC abend.c accesi.c chdiri.c ctimef.c datime.c datimh.c exitf.c geteni.c getgidf.c getpidf.c getuidf.c getwdi.c gmtimef.c intrac.c jmplong.c jmpset.c jumptn.c jumpxn.c kervers.c
- killf.c locb.c locf.c perroi.c qnexte.c readlni.c renami.c seteni.c setjmpf.c sleepf.c signalf.c sigprnt.c sigunbl.c stati.c systei.c tminit.c unlini.c tmread.c tmproi.c)
+  set(kernlib_kerngen_ccgen_CSRC abend.c accesi.c chdiri.c ctimef.c datime.c datimh.c exitf.c geteni.c getgidf.c getpidf.c getuidf.c getwdi.c gmtimef.c intrac.c jmplong.c jmpset.c kervers.c
+ killf.c locb.c locf.c perroi.c qnexte.c readlni.c renami.c seteni.c setjmpf.c sleepf.c signalf.c sigprnt.c sigunbl.c stati.c systei.c tminit.c unlini.c tmread.c tmproi.c
+ )
+ set(kernlib_kerngen_ccgen_old_CSRC jumptn.c jumpxn.c )
 if (CERNLIB_QMLXIA64)
   list(APPEND kernlib_kerngen_ccgen_CSRC chkloc.c)
 endif()
@@ -183,7 +185,8 @@ if (NOT CERNLIB_DOS)
 endif()
   list(TRANSFORM kernlib_kerngen_ccgen_FSRC PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../kernlib/kerngen/ccgen/")
   list(TRANSFORM kernlib_kerngen_ccgen_CSRC PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../kernlib/kerngen/ccgen/")
- 
+  list(TRANSFORM kernlib_kerngen_ccgen_old_CSRC PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../kernlib/kerngen/ccgen/")
+ set_source_files_properties(${kernlib_kerngen_ccgen_old_CSRC} PROPERTIES COMPILE_FLAGS "-std=c99")
 #kernlib/kerngen/ccgencf/Imakefile
  
   set(kernlib_kerngen_ccgencf_FSRC cfopen.F cfstat.F)
@@ -519,6 +522,7 @@ add_library(kernlib_static STATIC ${kernlib_esources}
                              ${kernlib_kernbit_z268_CSRC} 
                              ${kernlib_kerngen_ccgen_FSRC} 
                              ${kernlib_kerngen_ccgen_CSRC} 
+                             ${kernlib_kerngen_ccgen_old_CSRC} 
                              ${kernlib_kerngen_ccgencf_FSRC} 
                              ${kernlib_kerngen_ccgencf_CSRC} 
                              ${kernlib_kerngen_ccgenci_FSRC} 
@@ -586,6 +590,7 @@ add_library(kernlib SHARED ${kernlib_esources}
                              ${kernlib_kernbit_z268_CSRC} 
                              ${kernlib_kerngen_ccgen_FSRC} 
                              ${kernlib_kerngen_ccgen_CSRC} 
+                             ${kernlib_kerngen_ccgen_old_CSRC} 
                              ${kernlib_kerngen_ccgencf_FSRC} 
                              ${kernlib_kerngen_ccgencf_CSRC} 
                              ${kernlib_kerngen_ccgenci_FSRC} 

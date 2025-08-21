@@ -8,7 +8,7 @@ C-    Find first occurrence of CHI(1:1) in CHV(JL:JR)
 
       DIMENSION    JLP(9), JRP(9)
 
-      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT, DUMMY(36)
+      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT, DUMMY(76)
       CHARACTER    CHV*(*), CHI*1
 
       JJ = JLP(1)

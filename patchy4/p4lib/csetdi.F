@@ -8,7 +8,7 @@ C-    Set decimal integer into CHV(JL:JR) right-justified
 
       DIMENSION    INTP(9), JLP(9), JRP(9)
 
-      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT, DUMMY(36)
+      COMMON /SLATE/ NDSLAT,NESLAT,NFSLAT,NGSLAT, DUMMY(76)
       CHARACTER    CHV*(*)
 
 

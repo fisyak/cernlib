@@ -68,7 +68,7 @@ int type_of_call ACCESI(fname,
 #endif
       int  *lgname, *mode;
 {
-      char   *ptf, *fchtak();
+      char   *ptf, *fchtak(char*, int);
       int     istat, umode;
 
       istat = -1;
