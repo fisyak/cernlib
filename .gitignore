@@ -1,4 +1,4 @@
-build
+build*
 cern
 lapack/BLAS/SRC/*.o
 lapack/SRC/*.o

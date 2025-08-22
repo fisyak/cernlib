@@ -16,7 +16,7 @@ git co master
 [starsub02] ~/sources/cernlib/cernlib $ setenv CMAKE_LIBRARY_PATH $LD_LIBRARY_PATH 
 
 cmake -S ~/sources/cernlib/cernlib -B ~/sources/cernlib/build64x -DCMAKE_INSTALL_PREFIX=$XOPTSTAR/cern64
-cmake --build -j8 ~/sources/cernlib/build64x 
+cmake --build  ~/sources/cernlib/build64x -j8
 cmake --install ~/sources/cernlib/build64x 
 cd ~/sources/cernlib/build64x 
 ctest .
