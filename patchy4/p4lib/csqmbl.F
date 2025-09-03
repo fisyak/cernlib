@@ -8,7 +8,7 @@ C-    Squeeze multiple blanks in CHV(JL:JR), shifting left
 
       DIMENSION    JLP(9), JRP(9)
 
-      COMMON /SLATE/ NDSLAT,NESLAT, DUMMY(38)
+      COMMON /SLATE/ NDSLAT,NESLAT, DUMMY(78)
       CHARACTER    CHV*(*)
 
 C----              Find the first blank

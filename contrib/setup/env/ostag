@@ -1,0 +1,42 @@
+#!/bin/bash
+
+OS=$(uname -s)
+OS_ARCH=$(uname -m)
+
+# check for Apple/Darwin
+if [ "$OS" = 'Darwin' ]; then
+    OS_ID=$OS
+    OS_RELEASE=$(sw_vers --productVersion| cut -d\. -f1)
+else
+    # Linux case
+    if  [ "$OS" = 'Linux' ]; then
+	if [ -e /etc/os-release ]; then
+	    OS_ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
+	    OS_RELEASE=$(grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"'| cut -d\. -f1)
+	else
+            OS_ID=$(lsb_release -is)
+            OS_RELEASE=$(lsb_release -rs|cut -d\. -f1)
+	fi
+	# anything we do not know
+    else
+	echo "Unknown operating system $OS. Currently supported are Linux and Darwin only."
+	exit 1
+    fi
+fi
+export OS_ID
+export OS_RELEASE
+
+# test architecture
+if [ "$OS_ARCH" = "x86_64" ] && [ "$LEGACY" != "" ]; then
+    OS_ARCH='i386';
+fi
+if [ "$OS_ARCH" = "aarch64" ]; then
+    file /bin/bash | grep 32-bit > /dev/null 2>&1
+    rc=$?
+    if [ $rc -eq 0 ]; then
+	OS_ARCH=armf
+    fi
+fi
+OS_TAG=$(echo "${OS_ID}"-"${OS_RELEASE}"-"${OS_ARCH}"|tr '[:upper:]' '[:lower:]')
+export OS_TAG
+echo "$OS_TAG"

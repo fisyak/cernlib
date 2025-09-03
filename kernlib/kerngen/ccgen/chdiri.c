@@ -59,8 +59,8 @@ int type_of_call chdiri(fname,lgname)
 #endif
       int  *lgname;
 {
-      char *ptname, *fchtak();
-      int  istat, chdir();
+      char *ptname, *fchtak(char*, int);
+      int  istat, chdir(char*);
 
 /*        get memory and copy NAME terminated  */
 

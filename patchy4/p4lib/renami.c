@@ -16,8 +16,8 @@ int renami_(frpath, topath, lgfr, lgto)
       char *frpath, *topath;
       int  *lgfr, *lgto;
 {
-      char *ptfr, *ptto, *fchtak();
-      int  istat, rename();
+      char *ptfr, *ptto, *fchtak(char*, int);
+      int  istat, rename(const char *, const char *);
 
       istat = -1;
       ptfr  = fchtak(frpath,*lgfr);

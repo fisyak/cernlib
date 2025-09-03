@@ -61,13 +61,13 @@ void type_of_call getwdi(fname, lgname)
 {
 /*    char *malloc();  - see above "#include <stdlib.h>"  */
       char *ptalc, *pttext;
-      int  fchput();
+      int  fchput(const char*,const char*,int);
       int  nalc;
 #if !defined(CERNLIB_QGETCWD)
       char *getwd();
 #endif
 #if defined(CERNLIB_QGETCWD)
-      char *getcwd();
+      char *getcwd(const char*,int);
       int  nsize;
 #endif
 

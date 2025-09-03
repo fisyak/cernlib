@@ -8,7 +8,7 @@ C-    Find limits of next word in CHV(JL:JR)
 
       DIMENSION    JLP(9), JRP(9)
 
-      COMMON /SLATE/ NDSLAT,NESLAT, DUMMY(38)
+      COMMON /SLATE/ NDSLAT,NESLAT, DUMMY(78)
       CHARACTER    CHV*(*)
 
 C--       Ignore leading blanks

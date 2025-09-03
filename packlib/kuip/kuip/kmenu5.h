@@ -13,8 +13,17 @@ typedef struct _KmMenu {        /*                                         */ __
   char        **hlink;          /* list of links                           */ __
 } KmMenu;                       /*                                         */ __
                                 /*                                         */ __
-extern void klnkbrcl();         /*                                         */ __
-extern void klnkicon();         /*                                         */ __
-extern void klnkkmcl();         /*                                         */ __
-extern void klnkmenu();         /*                                         */ __
-                                /*                                         */ __
+/*
+extern void klnkbrcl(); 
+extern void klnkicon(); 
+extern void klnkkmcl();
+extern void klnkmenu();
+*/
+struct _BrClass;
+struct _KmClass;
+struct _KmIcon;
+struct _KmButton;
+extern void  klnkbrcl( struct _BrClass*, int );
+extern void  klnkkmcl( struct _KmClass*, int );
+extern void  klnkicon( struct _KmIcon*, int );
+extern void  klnkbutt( struct _KmButton*, int );

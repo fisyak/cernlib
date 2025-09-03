@@ -665,11 +665,11 @@ int disp_menu( const char *title,
     opt = mstrcat( opt, "W" );
 
   if( kc_flags.style & KmSTYLE_G ) {
-    F77_CALL_xCx5CxC3xC(Igmenu,&MN,title,ltitle,
-                      &X1,&X2,&Y1,&Y2,&NBU,button,lbutton,
-                      &N,item,litem,dfault,ldfault,value,lvalue,
-                      &ICHOIC,opt,strlen(opt));
-  }
+    Igmenu(&MN,title,ltitle,
+      &X1,&X2,&Y1,&Y2,&NBU,button,lbutton,
+      &N,item,litem,dfault,ldfault,value,lvalue,
+      &ICHOIC,opt,strlen(opt));
+     }
 
   free( opt );
 

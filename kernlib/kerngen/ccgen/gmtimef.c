@@ -44,7 +44,7 @@ void type_of_call GMTIMEF(clock, tarr)
       time_t *clock;
       int    *tarr;
 {
-    struct tm *gmtime(), *tm;
+    struct tm *gmtime(const time_t *), *tm;
 
     tm = gmtime(clock);
     tarr[0] = tm->tm_sec;

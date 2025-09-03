@@ -88,7 +88,7 @@
 # data files should be the same and therefore parallel installable
 
 Name:          %{?compat}cernlib%{?compiler}
-Version:       2025.02
+Version:       2025.07
 Release:       1%{?dist}
 Summary:       General purpose CERN library
 Group:         Development/Libraries
@@ -140,7 +140,7 @@ BuildRequires: /usr/bin/g77
 %endif
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:    2025.02_src-free.tar.gz
+Source0:    2025.07_src-free.tar.gz
 
 %description
 CERN program library is a large collection of general purpose libraries
@@ -991,6 +991,8 @@ touch --no-create %{_datadir}/icons/hicolor || :
 %endif
 
 %changelog
+* Thu Jul 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-07
+ - Multiple bug fixes
 * Mon Feb 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-02
  - Add support for reading data using xrootd
 * Mon Sep 16 2024 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2024-09

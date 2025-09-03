@@ -16,9 +16,9 @@ void geteni_(fname, ftext, lgtext, lgname)
       char *fname, *ftext;
       int  *lgtext, *lgname;
 {
-      char *ptname, *fchtak();
-      char *pttext, *getenv();
-      int  fchput();
+      char *ptname, *fchtak(char*, int);
+      char *pttext, *getenv(const char *);
+      int  fchput(const char*,const char*,int);
 
       pttext = NULL;
       ptname = fchtak(fname,*lgname);
