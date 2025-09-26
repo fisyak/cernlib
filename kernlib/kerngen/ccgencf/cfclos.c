@@ -17,6 +17,10 @@
  * Kernlib
  *
  */
+#ifdef CERNLIB_UNIX
+#include <unistd.h>
+#endif
+
 #include "kerngen/pilot.h"
 #include "kerngen/fortranc.h"
 

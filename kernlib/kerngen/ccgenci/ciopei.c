@@ -68,7 +68,7 @@ void type_of_call ciopei(lundes,mode,ftext,stat,lgtx)
       int  *lundes, *stat, *lgtx;
       int  *mode;
 {
-      char *pttext, *fchtak();
+      char *pttext, *fchtak(char*, int );
       int  flags;
       int  fildes;
       int  perm;

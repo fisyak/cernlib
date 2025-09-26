@@ -92,6 +92,8 @@ export CERNLIB_XROOTD=ON
 
 For more information, please take a look in the shift folder of this repository.
 
+!!! Please note that this feature is only supported for cmake based builds, and is currently ignored for imake, in particular if the make_cernlib script is used to build CERNLIB.
+
 
 ## 32bit cross compilation
 32bit cross compilation mode is activated by adding the switch *CERNLIB_32BITCROSS* to config/host.def

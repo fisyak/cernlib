@@ -14,9 +14,14 @@ git co master
 
 [starsub02] /gpfs01/star/subsys-tpc/fisyak/STAR/opt/star/al96_x8664_gcc11/lib $ ln -s /usr/lib64/libnsl.so.1 libnsl.so
 [starsub02] ~/sources/cernlib/cernlib $ setenv CMAKE_LIBRARY_PATH $LD_LIBRARY_PATH 
-
+setup spackTFG
+spack env activate AL96x
+setenv CMAKE_INCLUDE_PATH $XOPTSTAR/spack/include 
 cmake -S ~/sources/cernlib/cernlib -B ~/sources/cernlib/build64x -DCMAKE_INSTALL_PREFIX=$XOPTSTAR/cern64
-cmake --build -j8 ~/sources/cernlib/build64x 
+cmake --build ~/sources/cernlib/build64x  -j40
 cmake --install ~/sources/cernlib/build64x 
 cd ~/sources/cernlib/build64x 
 ctest .
+
+
+

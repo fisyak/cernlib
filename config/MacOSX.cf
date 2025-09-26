@@ -73,18 +73,10 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 #define	BuildDPMSExt	NO
 
 # define BuildXvExt     NO
-#ifndef OptimizationLevel
-# define OptimizationLevel -O
-#endif
-#define OptimizedCDebugFlags OptimizationLevel -g -pipe
-#define ExtraLoadFlags -L/usr/X11R6/lib -L/sw/lib -L/usr/local/Cellar/openmotif/2.3.8_1/lib -L/usr/local/lib/
 
 #define BuildExamples YES
 
-/*#define StandardDefines -DCERNLIB_LINUX -DCERNLIB_PPC -DCERNLIB_MACOSX \
-			-Dunix=unix -D__powerpc__ -D__DARWIN__ */
-#define StandardDefines -DCERNLIB_LINUX -DCERNLIB_MACOSX \
-			-Dunix=unix -D__DARWIN__ 
+#define StandardDefines -DCERNLIB_UNIX -DCERNLIB_MACOSX -DCERNLIB_GETCWD -DQM_GLIBC -DQMLXIA64 -Dunix -D__DARWIN__ -D__APPLE__ -DHAVE_MEMMOVE
 /* -DX_NOT_POSIX -DX_LOCALE */
 
 #define HasVoidSignalReturn YES
@@ -120,15 +112,15 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 #undef CplusplusCmd
 #ifdef MacOSXArchitecture
 #if 0
-#define CcCmd gcc-12 -arch "ppc" -no-cpp-precomp -ftree-vectorize
+#define CcCmd gcc -arch "ppc" -no-cpp-precomp -ftree-vectorize
 #define CplusplusCmd          c++ -no-cpp-precomp -ftree-vectorize
 #else
-#define CcCmd gcc-12 -ftree-vectorize
+#define CcCmd gcc -ftree-vectorize
 #define CplusplusCmd  c++ -ftree-vectorize
 #endif
 #endif
 #ifndef CcCmd
-#define CcCmd gcc-12 -g
+#define CcCmd gcc -g
 #endif
 
 #define CppCmd        /usr/bin/cpp
@@ -142,27 +134,23 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 #define FortranCmd              gfortran -g
 #define XargsCmd                xargs
 #define FortranSaveFlags        /* -fno-automatic */ /* Everything static !? */
-#define OptimisedFortranFlags	OptimizationLevel -g -funroll-loops \
-				-ftree-vectorize
-#define DefaultFCOptions        -fno-second-underscore OptimizationLevel
 
 #ifndef CernlibLocalDefines
 # define CernlibLocalDefines
 #endif
 #ifdef PpcDarwinArchitecture
-#define CernlibSystem           -DCERNLIB_LINUX -DCERNLIB_UNIX -DCERNLIB_LNX \
+#define CernlibDefaultDefines    -DCERNLIB_LINUX -DCERNLIB_UNIX -DCERNLIB_LNX \
 				-DCERNLIB_PPC -DCERNLIB_QMGLIBC \
 				-DCERNLIB_MACOSX -DCERNLIB_GFORTRAN \
 				CernlibLocalDefines
 #else
-#define CernlibSystem           -DCERNLIB_LINUX -DCERNLIB_UNIX -DCERNLIB_LNX \
+#define CernlibDefaultDefines   -DCERNLIB_LINUX -DCERNLIB_UNIX -DCERNLIB_LNX \
 				-DCERNLIB_QMGLIBC \
 				-DCERNLIB_MACOSX -DCERNLIB_GFORTRAN \
-				CernlibLocalDefines
+				 CernlibLocalDefines
 #endif
 
-
-/** Copied from Linux */
+/* Copied from Linux */
 #ifdef AMD64Architecture
 # ifndef OptimizationLevel
 #  define OptimizationLevel	-O0
@@ -170,13 +158,19 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 # ifndef OptimizedCDebugFlags
 #  define OptimizedCDebugFlags  OptimizationLevel
 # endif
+
 /*AV # define LinuxMachineDefines    -D__x86_64__*/
 # define ServerOSDefines        XFree86ServerOSDefines -DDDXTIME -DPART_NET
 # define ServerExtraDefines     -DGCCUSESGAS XFree86ServerDefines -D_XSERVER64
 # define CernlibMachineDefines  -DCERNLIB_QMLXIA64
 # define CERNLIB_QMLXIA64
+#else 
+# define CernlibMachineDefines  -DCERNLIB_QMLXIA64 -D__aarch64__
+# define OptimizationLevel	-O0
+# define CERNLIB_QMLXIA64
+#  define OptimizedCDebugFlags  -O0
 #endif /* AMD64Architecture */
-/*AC copied from Linux */
+/* AC copied from Linux */
 
 /* #define CERNLIB_SHIFT NO */
 #define CERNLIB_LINUX
@@ -189,25 +183,19 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 #define CERNLIB_MACOSX
 #define CERNLIB_GFORTRAN
 
-#define X11Includes             -I/usr/X11R6/include -I/usr/local/include -I/usr/local/Cellar/freetype/2.12.1/include/freetype2 -I/usr/local/include/freetype2
+#define X11Includes             -I/usr/X11R6/include -I/usr/local/include -I/usr/local/Cellar/freetype/2.12.1/include/freetype2 -I/usr/local/include/freetype2 -I/opt/homebrew/include -I/opt/X11/include/freetype2/
 
 /*
  *  Create a Make Variable to allow building with/out Motif
  */
-#define MotifIncludes		-I/sw/include -I/usr/local/Cellar/openmotif/2.3.8_1/include/  -I/usr/local/Cellar/openmotif/2.3.8_2/include/ 
+#define MotifIncludes		-I/sw/include -I/usr/local/Cellar/openmotif/2.3.8_1/include/  -I/usr/local/Cellar/openmotif/2.3.8_2/include/ -I/opt/homebrew/include
+
 #undef MotifDependantMakeVar
 #define MotifDependantMakeVar(variable,value) variable=value
 /* End  CERNLIB changes */
 
-/* define common CC and FC options */
-#if  (__GNUC__ >= 10)
-# define DefaultFCBaseOptions   -fallow-invalid-boz    -D_FORTIFY_SOURCE=2 -g -O0 -fno-range-check -fno-second-underscore --param=ssp-buffer-size=4 -fno-automatic -std=legacy -ffixed-line-length-72 -fno-backslash -fno-bounds-check  -fcommon
-#endif
-#if  (__GNUC__ < 10)
-# define DefaultFCBaseOptions      -D_FORTIFY_SOURCE=2 -g -O0 -fno-range-check -fno-second-underscore --param=ssp-buffer-size=4 -fno-automatic -std=legacy -ffixed-line-length-72 -fno-backslash -fno-bounds-check  -fcommon
-#endif
-# define DefaultCCBaseOptions       -D_FORTIFY_SOURCE=2 -g -O0 -fcommon -Wformat -Wall -trigraphs
 
+/* define common CC and FC options */
 /* define special options depending on architecture */
 #ifdef AMD64Architecture
 # define ExtraMathOpts  -mfpmath=387
@@ -215,34 +203,11 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 # define ExtraMathOpts
 #endif
 
-#if  (__GNUC__ >= 10)
-# define ExtraFCOptions -D_FORTIFY_SOURCE=2 -no-pie -fallow-invalid-boz -fallow-argument-mismatch -fno-align-commons -fno-aggressive-loop-optimizations -fstack-protector -finit-local-zero -fbacktrace
-# define ExtraCCOptions	-D_FORTIFY_SOURCE=2 -no-pie -Werror=format-security -fstack-protector --param=ssp-buffer-size=4 -fstack-protector-strong -fstack-clash-protection -fstack-protector -fasynchronous-unwind-tables -fexceptions -grecord-gcc-switches -mfpmath=387 -fcf-protection
-# define EXTRA_LDOPTIONS -no-pie
-#endif
+#define DefaultFCBaseOptions --param=ssp-buffer-size=4 -fno-backslash -ffixed-line-length-72 -std=legacy -fcommon -fno-automatic -fno-second-underscore -fno-align-commons -fno-aggressive-loop-optimizations -finit-local-zero -fallow-argument-mismatch -fno-range-check -fno-bounds-check -fbacktrace -fno-strict-aliasing -Wno-cpp -Wno-uninitialized -Wall -Wno-character-truncation -Wno-line-truncation -Wno-lto-type-mismatch -Wno-integer-division -Wno-intrinsic-shadow -Wno-argument-mismatch -Wno-aggressive-loop-optimizations -Wno-unused-label -Wno-unused-function -Wno-unused-variable -Wno-maybe-uninitialized -Wno-unused-dummy-argument -no-pie -O0 -g -fallow-invalid-boz -fstack-protector -Wno-conversion -Wno-return-type  -L/opt/homebrew/lib -Wl,-ld_classic,-dead_strip
 
+#define DefaultCCBaseOptions -fcommon -fexceptions -trigraphs -Wno-cpp -Wno-conversion -Wno-uninitialized -Wno-implicit-int -Wno-int-to-pointer-cast -Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-return-type -Wno-trigraphs -Wno-unused-label -Wno-unused-function -Wno-missing-braces -Wno-switch -Wno-format-overflow -Wno-unused-result -Wno-array-bounds -Wno-tautological-constant-compare -Wno-constant-logical-operand -O0 -g -Wno-deprecated-non-prototype -std=gnu11  -L/opt/homebrew/lib -Wl,-ld_classic,-dead_strip
 
-#if (__GNUC__ >= 5) && (__GNUC__ < 8)
-# define ExtraFCOptions -D_FORTIFY_SOURCE=2 -no-pie -fno-align-commons -fno-aggressive-loop-optimizations -fstack-protector -finit-local-zero -fbacktrace
-# define ExtraCCOptions	-D_FORTIFY_SOURCE=2 -no-pie -Werror=format-security -fstack-protector --param=ssp-buffer-size=4 -fstack-protector-strong -fstack-protector -fasynchronous-unwind-tables -fexceptions -grecord-gcc-switches -mfpmath=387
-# define EXTRA_LDOPTIONS -no-pie
-#endif
-
-#if (__GNUC__ >= 8) && (__GNUC__ < 10)
-# define ExtraFCOptions -D_FORTIFY_SOURCE=2 -no-pie -fno-align-commons -fno-aggressive-loop-optimizations -fstack-protector -finit-local-zero -fbacktrace
-# define ExtraCCOptions	-D_FORTIFY_SOURCE=2 -no-pie -Werror=format-security -fstack-protector --param=ssp-buffer-size=4 -fstack-protector-strong -fstack-clash-protection -fstack-protector -fasynchronous-unwind-tables -fexceptions -grecord-gcc-switches -mfpmath=387 -fcf-protection
-# define EXTRA_LDOPTIONS -no-pie
-#endif
-
-
-
-#if (__GNUC__ < 5)
-#ifdef AMD64Architecture
-#define ExtraFCOptions -L/usr/X11R6/lib64
-#define ExtraCCOptions -L/usr/X11R6/lib64
-#define EXTRA_LDOPTIONS -L/usr/X11R6/lib64
-#endif
-#endif
+#define EXTRA_LDOPTIONS -L/opt/homebrew/lib -Wl,-ld_classic,-dead_strip
 
 /* ensure everything is defined */
 #ifndef ExtraFCOptions
@@ -266,7 +231,6 @@ XCOMM #define ProjectTmplFile   <MacOSX.tmpl>
 # ifndef OptimizedCDebugFlags
 # define OptimizedCDebugFlags	OptimizationLevel DefaultCCOptions
 # endif
-# define OptimisedFortranFlags  OptimizedCDebugFlags /* -funroll-loops */
 #define OptimisedFortranFlags DefaultFCBaseOptions
 
 #define CERNLIB_GFORTRAN

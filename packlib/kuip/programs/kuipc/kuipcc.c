@@ -365,10 +365,10 @@ int main( argc, argv )
   else {
     /* avoid the usage of gets - possible buffer overrun */
     fprintf( stderr, "Enter CDF input file name: " );
-    (void*)fgets( ifile, sizeof ifile, stdin );
+    (void)fgets( ifile, sizeof ifile, stdin );
     ovl_strcpy( strstr( ifile, "\n"), "\0");
     fprintf( stderr, "Enter definition output file name: " );
-    (void*)fgets( ofile, sizeof ofile, stdin );
+    (void)fgets( ofile, sizeof ofile, stdin );
     ovl_strcpy( strstr( ofile, "\n"), "\0");
   }
 
@@ -2471,7 +2471,7 @@ void output_browsables()
     Browsable *brw = browsables[n-1];
     char *proot;
     char *popen;
-    char bname[16];
+    char bname[20];
 
     sprintf( bname, "brclass_%d", n );
     proot = output_action( bname, "root", brw->nroot, brw->root );
@@ -2509,7 +2509,7 @@ void output_classes()
     int is_dir = name[0] == '/';
     char *pcont;
     char *pgraf;
-    char cname[16];
+    char cname[20];
 
     sprintf( cname, "kmclass_%d", n );
     pcont = output_action( cname, "cont", cls->ncont, cls->cont );
@@ -2603,7 +2603,7 @@ void output_icons()
   int n;
   for( n = nicons; n > 0; n-- ) {
     Icon *icn = icons[n-1];
-    char bname[32];
+    char bname[33];
     int i;
 
     sprintf( bname, "(char*)kmicons_%d_bitmap", n );
