@@ -25,3 +25,11 @@ ctest .
 
 
 
+cd sources/cernlib
+mkdir ~/sources/build64x
+setenv CMAKE_INCLUDE_PATH $XOPTSTAR/spack/include
+cmake -S ~/sources/cernlib -B ~/sources/build64x -DCMAKE_INSTALL_PREFIX=$XOPTSTAR/cern64
+cmake --build ~/sources/build64x  -j8
+cmake --install ~/sources/build64x 
+cd ~/sources/build64x 
+ctest .
