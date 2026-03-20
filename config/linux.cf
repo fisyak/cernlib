@@ -526,7 +526,7 @@ endif									@@\
 # define DefaultFCBaseOptions       -D_FORTIFY_SOURCE=2 -g -O0 -fno-f2c -fno-range-check -fno-second-underscore --param=ssp-buffer-size=4 -fno-automatic -std=legacy -ffixed-line-length-72 -fno-backslash -fno-bounds-check -fcommon -fPIC
 # define DefaultCCBaseOptions       -D_FORTIFY_SOURCE=2 -g -O0 -fcommon -Wformat -Wall -trigraphs -fPIC
 
-#if  (__GNUC__ >= 10)
+#if  (__GNUC__ >= 7)
 # undef ArCmd
 # define ArCmd ar cq
 #endif

@@ -1,4 +1,4 @@
-# CERNLIB 2025.07
+# CERNLIB 2026.01
 
 This repository contains all CERNLIB modules with history in a single place.
 It is based on the last official release CERNLIB 2006a, with additional patches to support 64bit, mainly developed by Debian.
@@ -23,6 +23,8 @@ Important changes applied in this repository:
 - Add support for Ubuntu25 and Fedora 42
 - gcc15 fixes
 - Fixes for Fatmen
+- Add support for Alma 10
+- Fix termio.h, affecting recent Ubuntu and Fedora versions
 
 ## Breaking changes
 The implementation of mathlib/gen/e/dspin2.F looks wrong and has been corrected in CERNLIB tags 2023.08.X and newer.

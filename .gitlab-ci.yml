@@ -585,6 +585,7 @@ Ubuntu25-gcc-cmake-gen-64bit-pub-xrootd:
   artifacts:
     paths:
       - cern
+
 #######################################################################
 Debian12-gcc-cmake-gen-64bit:
   tags:
@@ -625,6 +626,41 @@ Debian12-gcc-cmake-gen-64bit-pub:
       - cern
 
 #######################################################################
+Debian12-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  extends: .Debian
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++ apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern
+
+Debian12-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian12_64
+  stage: tar
+  when: manual
+  dependencies:
+    - Debian12-gcc-imake-gen-64bit
+  script:
+    kind=imake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
 Debian12-gcc-cmake-gen-64bit-xrootd:
   tags:
     - k8s-default
@@ -659,7 +695,7 @@ Debian12-gcc-cmake-gen-64bit-pub-xrootd:
   dependencies:
     - Debian12-gcc-cmake-gen-64bit-xrootd
   script:
-    kind=cmake comp=gcc xrd=1 CI/tar.sh
+    kind=imake comp=gcc xrd=1 CI/tar.sh
   artifacts:
     paths:
       - cern
@@ -701,6 +737,41 @@ Debian12-gcc-cmake-gen-aarch64-pub-xrootd:
     - Debian12-gcc-cmake-gen-aarch64-xrootd
   script:
     kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Debian13-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian13_64
+  extends: .Debian
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++ apt-utils > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev libnsl-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  artifacts:
+    paths:
+      - cern
+
+Debian13-gcc-imake-gen-64bit-pub:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/debian13_64
+  stage: tar
+  when: manual
+  dependencies:
+    - Debian13-gcc-imake-gen-64bit
+  script:
+    export kind=imake; comp=gcc CI/tar.sh
   artifacts:
     paths:
       - cern
@@ -1132,6 +1203,45 @@ Fedora42-gcc-cmake-gen-64bit-pub-xrootd:
       - cern
 
 ###################################################################
+Fedora42-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  variables:
+    FREL: 42
+  extends: .Fedora
+  before_script:
+    - *commoninstall
+    - *gccinstall
+    - *cmakeinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  cache:
+    key: yum-cache-$FREL
+    paths:
+      - yum-cache-$FREL/
+  artifacts:
+    paths:
+      - cern
+
+Fedora42-gcc-cmake-gen-64bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  stage: tar
+  dependencies:
+    - Fedora42-gcc-cmake-gen-64bit
+  script:
+    kind=cmake comp=gcc xrd=0 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+###################################################################
 Fedora42-gcc-imake-gen-64bit-xrootd:
   tags:
     - k8s-default
@@ -1154,15 +1264,53 @@ Fedora42-gcc-imake-gen-64bit-xrootd:
       - cern
 
 Fedora42-gcc-imake-gen-64bit-pub-xrootd:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  stage: tar
+  dependencies:
+    - Fedora42-gcc-imake-gen-64bit-xrootd
+  script:
+    kind=imake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+###################################################################
+Fedora42-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  variables:
+    FREL: 42
+  extends: .Fedora
+  before_script:
+    - *commoninstall
+    - *gccinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh imake tarball GNU nodebug OFF
+  cache:
+    key: yum-cache-$FREL
+    paths:
+      - yum-cache-$FREL/
+  artifacts:
+    paths:
+      - cern
+
+Fedora42-gcc-imake-gen-64bit-pub:
   tags:
     - k8s-default
   image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
   stage: tar
   when: manual
   dependencies:
-    - Fedora42-gcc-imake-gen-64bit-xrootd
+    - Fedora42-gcc-imake-gen-64bit
   script:
-    kind=imake comp=gcc xrd=1 CI/tar.sh
+    kind=imake comp=gcc CI/tar.sh
   artifacts:
     paths:
       - cern
@@ -1197,6 +1345,153 @@ Fedora42-gcc-cmake-rpm-64bit:
   artifacts:
     paths:
       - rpmbuildcmake/RPMS
+#######################################################################
+# Note: xbae is gone from Alma10/Rhel10
+Alma10-gcc-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  variables:
+    FREL: AL10
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma10-gcc-cmake-gen-64bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  stage: tar
+  when: manual
+  dependencies:
+    - Alma10-gcc-cmake-gen-64bit
+  script:
+    kind=cmake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma10-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  variables:
+    FREL: AL10
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *gccinstall
+    - *cmakeinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma10-gcc-cmake-gen-64bit-pub-xrootd:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  stage: tar
+  when: manual
+  dependencies:
+    - Alma10-gcc-cmake-gen-64bit-xrootd
+  script:
+     kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma10-gcc-cmake-gen-aarch64:
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10-aarch64
+  variables:
+    FREL: AL10
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *gccinstall
+    - *cmakeinstall
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma10-gcc-cmake-gen-aarch64-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10-aarch64
+  stage: tar
+  when: manual
+  dependencies:
+    - Alma10-gcc-cmake-gen-aarch64
+  script:
+    kind=cmake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
+#######################################################################
+Alma10-gcc-cmake-gen-aarch64-xrootd:
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10-aarch64
+  variables:
+    FREL: AL10
+  extends: .CentOS
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - *gccinstall
+    - *cmakeinstall
+    - dnf -y  install --setopt=keepcache=1 --setopt=cachedir=`pwd`/yum-cache-$FREL xrootd-client-libs xrootd-client-devel
+  script:
+    - sh CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma10-gcc-cmake-gen-aarch64-pub-xrootd:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10-aarch64
+  stage: tar
+  when: manual
+  dependencies:
+    - Alma10-gcc-cmake-gen-64bit-xrootd
+  script:
+    kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
+
 #######################################################################
 Alma9-gcc-cmake-gen-64bit:
   tags:
@@ -2030,7 +2325,7 @@ publish_32:
     CI/publish.sh
 ###################################################
 ###################################################
-publish_64:
+publish_64_rh:
   tags:
     - k8s-default
   only:
@@ -2045,9 +2340,12 @@ publish_64:
     - Alma8-gcc-cmake-gen-aarch64-pub
     - Alma9-gcc-cmake-gen-64bit-pub
     - Alma9-gcc-cmake-gen-aarch64-pub
+    - Alma10-gcc-cmake-gen-64bit-pub
+    - Alma10-gcc-cmake-gen-aarch64-pub
     - Centos7-gcc-cmake-gen-64bit-pub
     - Centos7-gcc-imake-gen-64bit-pub
-    - Debian12-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-imake-gen-64bit-pub
     - SL4-g77-cmake-gen-64bit-pub
     - SL4-gcc-cmake-gen-64bit-pub
     - SL4-gcc-imake-gen-64bit-pub
@@ -2055,22 +2353,17 @@ publish_64:
     - SL5-gcc-imake-gen-64bit-pub
     - SL6-gcc-cmake-gen-64bit-pub
     - SL6-gcc-imake-gen-64bit-pub
-    - Ubuntu20-gcc-cmake-gen-64bit-pub
-    - Ubuntu20-gcc-imake-gen-64bit-pub
-    - Ubuntu22-gcc-cmake-gen-64bit-pub
-    - Ubuntu22-gcc-imake-gen-64bit-pub
-    - Ubuntu24-gcc-cmake-gen-64bit-pub
-    - Ubuntu24-gcc-imake-gen-64bit-pub
-    - Ubuntu25-gcc-cmake-gen-64bit-pub
   needs:
     - Alma8-gcc-cmake-gen-64bit-pub
     - Alma8-gcc-cmake-gen-aarch64-pub
     - Alma9-gcc-cmake-gen-64bit-pub
     - Alma9-gcc-cmake-gen-aarch64-pub
+    - Alma10-gcc-cmake-gen-64bit-pub
+    - Alma10-gcc-cmake-gen-aarch64-pub
     - Centos7-gcc-cmake-gen-64bit-pub
     - Centos7-gcc-imake-gen-64bit-pub
-    - Debian12-gcc-cmake-gen-64bit-pub
-    - Debian13-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-imake-gen-64bit-pub
     - SL4-g77-cmake-gen-32bit-pub
     - SL4-g77-cmake-gen-64bit-pub
     - SL4-gcc-cmake-gen-64bit-pub
@@ -2079,6 +2372,35 @@ publish_64:
     - SL5-gcc-imake-gen-64bit-pub
     - SL6-gcc-cmake-gen-64bit-pub
     - SL6-gcc-imake-gen-64bit-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    CI/publish.sh
+###################################################
+###################################################
+publish_64_deb:
+  tags:
+    - k8s-default
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: publish_64
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Debian12-gcc-cmake-gen-64bit-pub
+    - Debian13-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-imake-gen-64bit-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-pub
+    - Ubuntu22-gcc-imake-gen-64bit-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-pub
+    - Ubuntu24-gcc-imake-gen-64bit-pub
+    - Ubuntu25-gcc-cmake-gen-64bit-pub
+  needs:
+    - Debian12-gcc-cmake-gen-64bit-pub
+    - Debian13-gcc-cmake-gen-64bit-pub
     - Ubuntu20-gcc-cmake-gen-64bit-pub
     - Ubuntu20-gcc-imake-gen-64bit-pub
     - Ubuntu22-gcc-cmake-gen-64bit-pub
@@ -2111,7 +2433,10 @@ publish_xrd:
     - Debian13-gcc-cmake-gen-64bit-pub-xrootd
     - Alma9-gcc-cmake-gen-64bit-pub-xrootd
     - Alma9-gcc-cmake-gen-aarch64-pub-xrootd
+    - Alma10-gcc-cmake-gen-64bit-pub-xrootd
+    - Alma10-gcc-cmake-gen-aarch64-pub-xrootd
     - Fedora42-gcc-cmake-gen-64bit-pub-xrootd
+    - Fedora42-gcc-imake-gen-64bit-pub-xrootd
   needs:
     - Ubuntu22-gcc-cmake-gen-64bit-pub-xrootd
     - Ubuntu24-gcc-cmake-gen-64bit-pub-xrootd
@@ -2121,7 +2446,10 @@ publish_xrd:
     - Debian13-gcc-cmake-gen-64bit-pub-xrootd
     - Alma9-gcc-cmake-gen-64bit-pub-xrootd
     - Alma9-gcc-cmake-gen-aarch64-pub-xrootd
+    - Alma10-gcc-cmake-gen-64bit-pub-xrootd
+    - Alma10-gcc-cmake-gen-aarch64-pub-xrootd
     - Fedora42-gcc-cmake-gen-64bit-pub-xrootd
+    - Fedora42-gcc-imake-gen-64bit-pub-xrootd
   before_script:
     - dnf -y install krb5-workstation bind-utils
   script:

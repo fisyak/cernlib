@@ -12,6 +12,8 @@ fi
 
 if [ "${xrd}" = "" ]; then
     xrd="std"
+elif  [ "${xrd}" = "0" ]; then
+    xrd="std"
 else
     xrd="xrd"
 fi

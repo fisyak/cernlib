@@ -88,7 +88,7 @@
 # data files should be the same and therefore parallel installable
 
 Name:          %{?compat}cernlib%{?compiler}
-Version:       2025.07
+Version:       2026.01
 Release:       1%{?dist}
 Summary:       General purpose CERN library
 Group:         Development/Libraries
@@ -140,7 +140,7 @@ BuildRequires: /usr/bin/g77
 %endif
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:    2025.07_src-free.tar.gz
+Source0:    2026.01_src-free.tar.gz
 
 %description
 CERN program library is a large collection of general purpose libraries
@@ -991,6 +991,10 @@ touch --no-create %{_datadir}/icons/hicolor || :
 %endif
 
 %changelog
+* Wed Mar 5 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-01
+- termio fix, affecting recent Fedora and Ubuntu versions
+* Tue Nov 25 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-11
+ - Multiple bug fixes
 * Thu Jul 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-07
  - Multiple bug fixes
 * Mon Feb 17 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-02

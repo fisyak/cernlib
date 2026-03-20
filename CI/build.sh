@@ -13,7 +13,7 @@ BEAROPTION=$4
 CERNLIB_XROOTD=$5
 #[anything, bear = use bear, bear3 = use bear version 3 ]
 #CERNLIB version
-CL_VERSION=2025.07
+CL_VERSION=2026.01
 
 if [ "x$TARGET" != "xrpm" ] && [ "x$TARGET" != "xbrew" ]; then
 echo $TMP
@@ -104,6 +104,12 @@ if [ "x$BUILDSYSTEM" = "xcmake" ]; then
    export FC=gfortran
    extra_args=$extra_args" -DCERNLIB_USE_INTERNAL_LAPACK=ON -DCERNLIB_USE_INTERNAL_XBAE=ON "
   fi
+  if [ $TOOLCHAIN = GNU14 ]; then
+   export TOOLCHAIN=GNU14
+   export CC=gcc
+   export FC=gfortran
+   extra_args=$extra_args" -DCERNLIB_USE_INTERNAL_XBAE=ON "
+  fi
   if [ $TOOLCHAIN = *NVIDIA ]; then
    set +x
    nvidiaversion=$(ls -1r /opt/nvidia/hpc_sdk/modulefiles/nvhpc/ | grep 2 | head -n 1)
@@ -163,7 +169,7 @@ if [ "x$BUILDSYSTEM" = "xcmake" ]; then
   mkdir -p BUILD$TOOLCHAIN
   cd BUILD$TOOLCHAIN
   if [ "x$TARGET" != "xrpm" ] && [ "x$TARGET" != "xbrew" ]; then
-    $CMAKE   ../  ${extra_args}  -DCERNLIB_NO_SUFFIX=1 -DCERNLIB_2022=yes -DCERNLIB_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=${CC} -DCERNLIB_BUILD_SHARED=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCERNLIB_ENABLE_TEST=ON -DCMAKE_INSTALL_PREFIX=/2025.07 -DCERNLIB_XROOTD=${CERNLIB_XROOTD}
+    $CMAKE   ../  ${extra_args}  -DCERNLIB_NO_SUFFIX=1 -DCERNLIB_2022=yes -DCERNLIB_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER=${CC} -DCERNLIB_BUILD_SHARED=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCERNLIB_ENABLE_TEST=ON -DCMAKE_INSTALL_PREFIX=/2025.11 -DCERNLIB_XROOTD=${CERNLIB_XROOTD}
     $BEAR make -j 20 || exit $?
     ctest . --force-new-ctest-process --output-on-failure --timeout 60 -E 'testgexam2|testgexam4' || ctest . --force-new-ctest-process --output-on-failure --rerun-failed --timeout 60 -j 1 || ctest . --force-new-ctest-process --output-on-failure --rerun-failed --timeout 60 -j 1 -E 'testzebfz2|testkernnumtest|testgent|testerexam1|testerexam2|testzexam|testgexam2|testgexam4'  -j 1
     mkdir -p $TOP/cern

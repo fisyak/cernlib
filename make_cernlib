@@ -54,7 +54,7 @@ fi
 
 # check for CentOS/RHEL
 if [ -e  /etc/os-release ]; then
-    flavor=`cat /etc/os-release | grep ^ID=| sed -e 's/\"//'g| cut -d= -f 2`
+    flavor=$(cat /etc/os-release | grep ^ID=| sed -e 's/\"//'g| cut -d= -f 2| cut -d \- -f1)
 else
     # older RH versions don't have /etc/os-release yet
     if [ -e /etc/redhat-release ]; then
@@ -62,7 +62,7 @@ else
     fi
 fi
 
-if [ "x$flavor" = "xcentos" ] || [ "x$flavor" = "xrhel" ] || [  "x$flavor" = "xalmalinux" ]; then
+if [ "x$flavor" = "xcentos" ] || [ "x$flavor" = "xrhel" ] || [  "x$flavor" = "xalmalinux" ] || [ "x$flavor" = "xopensuse" ] || [ "x$flavor" = "xdebian" ]; then
     # there is no external libXbae available on these
     echo '#define CERNLIB_NOLIBXBAE YES' >> config/host.def
 fi
