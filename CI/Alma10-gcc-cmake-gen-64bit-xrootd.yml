@@ -1,0 +1,33 @@
+Alma10-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - dnf -y  install  libnsl  libnsl2-devel bc || true
+    - dnf -y install  epel-release cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+    - dnf -y  install xrootd-client-libs xrootd-client-devel
+  script:
+    - CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma10-gcc-cmake-gen-64bit-xrootd-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al10
+  stage: tar
+  when: manual
+  dependencies:
+    - Alma10-gcc-cmake-gen-64bit-xrootd
+  script:
+     kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

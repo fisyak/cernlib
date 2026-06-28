@@ -1,0 +1,37 @@
+Alma9-gcc-cmake-gen-aarch64:
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  tags:
+    - k8s-arm
+  stage: build
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - dnf -y install make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip bc
+    - dnf -y install lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh
+    - dnf -y install lapack blas desktop-file-utils which wget bc automake  glibc-devel 
+    - dnf -y install gcc gcc-c++ gcc-gfortran  > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install libnsl  libnsl2-devel || true
+    - dnf -y install epel-release cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+  script:
+    - CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-aarch64-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-arm
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9-aarch64
+  stage: tar
+  needs:
+    - Alma9-gcc-cmake-gen-aarch64
+  dependencies:
+    - Alma9-gcc-cmake-gen-aarch64
+  script:
+    kind=cmake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern

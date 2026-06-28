@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 1986-2024 Members of the DELPHI collaboration
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 OS=$(uname -s)
 OS_ARCH=$(uname -m)
 

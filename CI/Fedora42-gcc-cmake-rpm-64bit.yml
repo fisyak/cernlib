@@ -1,0 +1,22 @@
+Fedora42-gcc-cmake-rpm-64bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  before_script:
+    - dnf -y update
+    - uname -a
+    - cat /etc/issue
+    - ulimit -n 1024
+    - dnf -y install  cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+    - dnf -y  install  --skip-broken  --allowerasing  openssh-server make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install  lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh   > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install  lapack blas desktop-file-utils which wget bc automake  glibc-devel > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install  "libnsl*"  > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install  environment-modules  || true
+    - dnf -y  install  chrpath libnsl libnsl2-devel || true
+  script:
+    - CI/build.sh cmake rpm GNU14 nodebug
+  artifacts:
+    paths:
+      - rpmbuildcmake/RPMS

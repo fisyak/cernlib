@@ -1,0 +1,29 @@
+Centos7-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  script:
+    - CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-cmake-gen-32bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: tar
+  needs:
+    - Centos7-gcc-cmake-gen-32bit
+  dependencies:
+    - Centos7-gcc-cmake-gen-32bit
+  script:
+    kind=cmake comp=gcc LEGACY=-m32 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

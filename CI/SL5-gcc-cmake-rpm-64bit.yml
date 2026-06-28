@@ -1,0 +1,11 @@
+SL5-gcc-cmake-rpm-64bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl5_64:ext
+  script:
+    - CI/build.sh cmake rpm GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern

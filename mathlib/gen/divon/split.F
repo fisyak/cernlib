@@ -6,9 +6,15 @@
 * Initial revision
 *
 *
+* Analyzes a multidimensional region, estimates the integrand's 
+* behavior, and decides how (or whether) to split the region to
+* improve adaptive integration accuracy.
+* See CERNLIB D151 for divon CERNLIB documentation.
+* See T. Hahn, "Cuba - a library for multidimensional numerical integration"
+* Comput.Phys.Commun. 168 (2005) 78-95 for even more docs on the method.
 #include "gen/pilot.h"
-      SUBROUTINE SPLIT (NDIM,UMINUS,UPLUS,FLOBD,FUPBD,TERMNL,DISCRM,PART
-     1N,BUCKTS,IRBUC)
+      SUBROUTINE SPLITDVN(NDIM,UMINUS,UPLUS,FLOBD,FUPBD,TERMNL,DISCRM,
+     1PARTN,BUCKTS,IRBUC)
       INTEGER NDIM, DISCRM, IRBUC
       LOGICAL TERMNL
       REAL FLOBD, FUPBD, PARTN

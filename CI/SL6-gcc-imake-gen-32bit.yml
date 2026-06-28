@@ -1,0 +1,29 @@
+SL6-gcc-imake-gen-32bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  script:
+    - CI/build.sh imake tarball32bit GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL6-gcc-imake-gen-32bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl6_32:ext
+  stage: tar
+  needs:
+    - SL6-gcc-imake-gen-32bit
+  dependencies:
+    - SL6-gcc-imake-gen-32bit
+  script:
+    kind=imake comp=gcc LEGACY=-m32 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

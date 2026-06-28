@@ -1,0 +1,38 @@
+Ubuntu26-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu26:latest
+  stage: build
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++ apt-utils bc > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+  script:
+    - CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern/
+
+Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu26:latest
+  stage: tar
+  dependencies:
+    - Ubuntu26-gcc-cmake-gen-64bit-xrootd
+  needs:
+    - Ubuntu26-gcc-cmake-gen-64bit-xrootd
+  script:
+    kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

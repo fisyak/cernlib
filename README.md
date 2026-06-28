@@ -1,4 +1,4 @@
-# CERNLIB 2026.01
+# CERNLIB 2026.06
 
 This repository contains all CERNLIB modules with history in a single place.
 It is based on the last official release CERNLIB 2006a, with additional patches to support 64bit, mainly developed by Debian.
@@ -25,6 +25,8 @@ Important changes applied in this repository:
 - Fixes for Fatmen
 - Add support for Alma 10
 - Fix termio.h, affecting recent Ubuntu and Fedora versions
+- Redone CI
+- Renaming SPLIT into SPLITDVN to avoid a clash with intrinsic function name
 
 ## Breaking changes
 The implementation of mathlib/gen/e/dspin2.F looks wrong and has been corrected in CERNLIB tags 2023.08.X and newer.
@@ -186,10 +188,11 @@ for the older systems the specially prepared containers are used.
  therefore all the 32bit libraries are needed and the compilers should be supplied with
  the appropriate flags (e.g. "-m32" in case of gfortran)
 
-## Changes of CMake build system (for advanced users/developers)
-The wast majority of CMake code is generated automatically from the Imake files via the
-the script `CI/imake2cmake.py`. The automatically generated CMake files should not be edited,
-the script `CI/imake2cmake.py` should be edited if some changes are needed.
+### Adding additional builds
+To add a new build, once needs to:
+- Add a new .yml file in the CI folder
+- Ensure it is included in .gitlab-ci
+- update CI/publish-free.yml to publish it
 
 ## Automatically created binaries
 The CI creates CERNLIB binaries automatically. To download them, go to the CI/CD and choose "Pipelines".

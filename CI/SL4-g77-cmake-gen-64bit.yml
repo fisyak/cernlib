@@ -1,0 +1,29 @@
+SL4-g77-cmake-gen-64bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  script:
+    - CI/build.sh cmake tarball GNU3 nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+SL4-g77-cmake-gen-64bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/sl4_64:ext
+  stage: tar
+  needs:
+    - SL4-g77-cmake-gen-64bit
+  dependencies:
+    - SL4-g77-cmake-gen-64bit
+  script:
+    kind=cmake comp=g77 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

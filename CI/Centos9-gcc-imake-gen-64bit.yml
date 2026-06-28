@@ -1,0 +1,36 @@
+Centos9-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  before_script:
+    - dnf -y  install gcc gcc-c++ gcc-gfortran ||true
+    - dnf -y  install make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh   > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install lapack blas desktop-file-utils which wget bc automake  glibc-devel > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y  install environment-modules  || true
+    - dnf -y  install  libnsl  libnsl2-devel || true
+  script:
+    - CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos9-gcc-imake-gen-64bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-cs9
+  stage: tar
+  needs:
+    - Centos9-gcc-imake-gen-64bit
+  dependencies:
+    - Centos9-gcc-imake-gen-64bit
+  script:
+    kind=cmake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern

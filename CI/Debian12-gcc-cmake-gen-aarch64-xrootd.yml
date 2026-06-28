@@ -1,0 +1,41 @@
+Debian12-gcc-cmake-gen-aarch64-xrootd:
+  tags:
+    - k8s-default
+  stage: build
+  image: debian:bookworm
+  tags:
+    - k8s-arm
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+    - apt-get update  > /dev/null
+    - apt-get install -y -qq cmake g++ apt-utils bc > /dev/null
+    - apt-get install -y -qq gfortran  doxygen wget graphviz libz-dev >/dev/null
+    - apt-get install -y -qq devscripts build-essential > /dev/null
+    - apt-get install -y -qq libxbae-dev liblapack-dev
+    - apt-get install -y -qq xutils-dev x11-common xorg-dev libmotif-dev
+    - apt-get install -y -qq libxrootd-client-dev
+    - apt-get install -y -qq make git gcc g++ gfortran libx11-dev libx11-dev libx11-6 libx11-6 libglu1-mesa libglu1-mesa-dev xutils-dev  libmotif-common r-base-dev tcsh xfonts-100dpi xfonts-75dpi libxfont2  xutils-dev libxbae-dev libxaw7-dev libssl-dev libglew-dev libdlm-dev xrootd-client
+  script:
+    - CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern
+
+Debian12-gcc-cmake-gen-aarch64-xrootd-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-arm
+  image: debian:bookworm
+  stage: tar
+  dependencies:
+    - Debian12-gcc-cmake-gen-aarch64-xrootd
+  needs:
+    - Debian12-gcc-cmake-gen-aarch64-xrootd
+  script:
+    kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

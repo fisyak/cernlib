@@ -1,0 +1,29 @@
+Centos7-gcc-imake-gen-64bit:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  script:
+    - CI/build.sh imake tarball GNU nodebug OFF
+  allow_failure: false
+  artifacts:
+    paths:
+      - cern
+
+Centos7-gcc-imake-gen-64bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/cc7:ext
+  stage: tar
+  needs:
+    - Centos7-gcc-imake-gen-64bit
+  dependencies:
+    - Centos7-gcc-imake-gen-64bit
+  script:
+    kind=imake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern

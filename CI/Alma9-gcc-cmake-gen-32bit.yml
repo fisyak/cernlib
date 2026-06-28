@@ -1,0 +1,46 @@
+Alma9-gcc-cmake-gen-32bit:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: build
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - dnf -y install gcc gcc-c++ gcc-gfortran bc > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install  libnsl  libnsl2-devel || true
+    - dnf -y install  epel-release cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+    - dnf -y install xbae-devel.i686 || true
+    - rpm -e openssl-devel --nodeps|| true
+    - dnf -y install lapack.i686 blas.i686 > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install lapack-devel.i686 blas-devel.i686 libgcc.i686  > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install libnsl.i686 libXpm-devel.i686 libnsl2-devel.i686 libXfont2-devel.i686 libX11-devel.i686 libXft-devel.i686 motif-devel.i686 libXaw-devel.i686 libXau-devel.i686 glibc-devel.i686 libgfortran.i686 freetype-devel.i686   openssl-devel.i686 > rpm.log || (cat rpm.log && exit 1)
+    - cp CI/xbae-4.60.4.tar.gz ./
+    - tar -zxf  xbae-4.60.4.tar.gz
+    - cd  xbae-4.60.4
+    - CC='gcc -m32' CXX='g++ -m32' ./configure --prefix=/usr --libdir=/usr/lib --disable-static --disable-dependency-tracking ||true
+    - make -j 2 || true
+    - make -j 2 install || true
+    - cd ..
+  script:
+    - CI/build.sh cmake tarball32bit GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-32bit-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: tar
+  needs:
+    - Alma9-gcc-cmake-gen-32bit
+  dependencies:
+    - Alma9-gcc-cmake-gen-32bit
+  script:
+    kind=cmake comp=gcc LEGACY=-m32 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

@@ -1,0 +1,184 @@
+###########################################################
+publish_32:
+  tags:
+    - k8s-default
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: publish_32
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Alma8-gcc-cmake-gen-32bit-pub
+    - Alma9-gcc-cmake-gen-32bit-pub
+    - Centos7-gcc-cmake-gen-32bit-pub
+    - Centos7-gcc-imake-gen-32bit-pub
+    - Centos9-gcc-cmake-gen-32bit-pub
+    - Centos9-gcc-imake-gen-32bit-pub
+    - SL4-g77-cmake-gen-32bit-pub
+    - SL4-gcc-cmake-gen-32bit-pub
+    - SL4-gcc-imake-gen-32bit-pub
+    - SL5-gcc-cmake-gen-32bit-pub
+    - SL5-gcc-imake-gen-32bit-pub
+    - SL6-gcc-cmake-gen-32bit-pub
+    - SL6-gcc-imake-gen-32bit-pub
+  needs:
+    - Alma8-gcc-cmake-gen-32bit-pub
+    - Alma9-gcc-cmake-gen-32bit-pub
+    - Centos7-gcc-cmake-gen-32bit-pub
+    - Centos7-gcc-imake-gen-32bit-pub
+    - Centos9-gcc-cmake-gen-32bit-pub
+    - Centos9-gcc-imake-gen-32bit-pub
+    - SL4-g77-cmake-gen-32bit-pub
+    - SL4-gcc-cmake-gen-32bit-pub
+    - SL4-gcc-imake-gen-32bit-pub
+    - SL5-gcc-cmake-gen-32bit-pub
+    - SL5-gcc-imake-gen-32bit-pub
+    - SL6-gcc-cmake-gen-32bit-pub
+    - SL6-gcc-imake-gen-32bit-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    CI/publish.sh
+###################################################
+###################################################
+publish_64_rh:
+  tags:
+    - k8s-default
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: publish_64
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Alma8-gcc-cmake-gen-64bit-pub
+    - Alma8-gcc-cmake-gen-aarch64-pub
+    - Alma9-gcc-cmake-gen-64bit-pub
+    - Alma9-gcc-cmake-gen-aarch64-pub
+    - Alma10-gcc-cmake-gen-64bit-pub
+    - Alma10-gcc-cmake-gen-aarch64-pub
+    - Centos7-gcc-cmake-gen-64bit-pub
+    - Centos7-gcc-imake-gen-64bit-pub
+    - Fedora42-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-imake-gen-64bit-pub
+    - Fedora43-gcc-cmake-gen-64bit-pub
+    - Fedora44-gcc-cmake-gen-64bit-pub
+    - SL4-g77-cmake-gen-64bit-pub
+    - SL4-gcc-cmake-gen-64bit-pub
+    - SL4-gcc-imake-gen-64bit-pub
+    - SL5-gcc-cmake-gen-64bit-pub
+    - SL5-gcc-imake-gen-64bit-pub
+    - SL6-gcc-cmake-gen-64bit-pub
+    - SL6-gcc-imake-gen-64bit-pub
+  needs:
+    - Alma8-gcc-cmake-gen-64bit-pub
+    - Alma8-gcc-cmake-gen-aarch64-pub
+    - Alma9-gcc-cmake-gen-64bit-pub
+    - Alma9-gcc-cmake-gen-aarch64-pub
+    - Alma10-gcc-cmake-gen-64bit-pub
+    - Alma10-gcc-cmake-gen-aarch64-pub
+    - Centos7-gcc-cmake-gen-64bit-pub
+    - Centos7-gcc-imake-gen-64bit-pub
+    - Fedora42-gcc-cmake-gen-64bit-pub
+    - Fedora42-gcc-imake-gen-64bit-pub
+    - Fedora43-gcc-cmake-gen-64bit-pub
+    - Fedora44-gcc-cmake-gen-64bit-pub
+    - SL4-g77-cmake-gen-32bit-pub
+    - SL4-g77-cmake-gen-64bit-pub
+    - SL4-gcc-cmake-gen-64bit-pub
+    - SL4-gcc-imake-gen-64bit-pub
+    - SL5-gcc-cmake-gen-64bit-pub
+    - SL5-gcc-imake-gen-64bit-pub
+    - SL6-gcc-cmake-gen-64bit-pub
+    - SL6-gcc-imake-gen-64bit-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    CI/publish.sh
+###################################################
+###################################################
+publish_64_deb:
+  tags:
+    - k8s-default
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: publish_64
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Debian12-gcc-cmake-gen-64bit-pub
+    - Debian13-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-imake-gen-64bit-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-pub
+    - Ubuntu22-gcc-imake-gen-64bit-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-pub
+    - Ubuntu24-gcc-imake-gen-64bit-pub
+    - Ubuntu26-gcc-cmake-gen-64bit-pub
+  needs:
+    - Debian12-gcc-cmake-gen-64bit-pub
+    - Debian13-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-cmake-gen-64bit-pub
+    - Ubuntu20-gcc-imake-gen-64bit-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-pub
+    - Ubuntu22-gcc-imake-gen-64bit-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-pub
+    - Ubuntu24-gcc-imake-gen-64bit-pub
+    - Ubuntu26-gcc-cmake-gen-64bit-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    CI/publish.sh
+###################################################
+###################################################
+publish_xrd:
+  tags:
+    - k8s-default
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al9
+  stage: publish_xrd
+  when: manual
+  allow_failure: true
+  dependencies:
+    - Alma10-gcc-cmake-gen-64bit-xrootd-pub
+    - Alma10-gcc-cmake-gen-aarch64-xrootd-pub
+    - Alma9-gcc-cmake-gen-64bit-xrootd-pub
+    - Alma9-gcc-cmake-gen-aarch64-xrootd-pub
+    - Debian12-gcc-cmake-gen-64bit-xrootd-pub
+    - Debian12-gcc-cmake-gen-aarch64-xrootd-pub
+    - Debian13-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora42-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora42-gcc-imake-gen-64bit-xrootd-pub
+    - Fedora43-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora44-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu24-gcc-imake-gen-64bit-xrootd-pub
+    - Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub
+  needs:
+    - Alma10-gcc-cmake-gen-64bit-xrootd-pub
+    - Alma10-gcc-cmake-gen-aarch64-xrootd-pub
+    - Alma9-gcc-cmake-gen-64bit-xrootd-pub
+    - Alma9-gcc-cmake-gen-aarch64-xrootd-pub
+    - Debian12-gcc-cmake-gen-64bit-xrootd-pub
+    - Debian12-gcc-cmake-gen-aarch64-xrootd-pub
+    - Debian13-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora42-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora42-gcc-imake-gen-64bit-xrootd-pub
+    - Fedora43-gcc-cmake-gen-64bit-xrootd-pub
+    - Fedora44-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu22-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu24-gcc-cmake-gen-64bit-xrootd-pub
+    - Ubuntu24-gcc-imake-gen-64bit-xrootd-pub
+    - Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub
+  before_script:
+    - dnf -y install krb5-workstation bind-utils
+  script:
+    CI/publish.sh

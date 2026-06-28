@@ -1,0 +1,38 @@
+Alma8-gcc-cmake-gen-aarch64:
+#  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-al8-aarch64
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  stage: build
+  tags:
+    - k8s-arm
+  before_script:
+    - dnf config-manager --set-enabled powertools
+    - dnf -y install make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip bc
+    - dnf -y install lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh
+    - dnf -y install lapack blas desktop-file-utils which wget bc automake  glibc-devel 
+    - dnf -y install gcc gcc-c++ gcc-gfortran  > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install libnsl  libnsl2-devel || true
+    - dnf -y install epel-release cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+  script:
+    - CI/build.sh cmake tarball GNU nodebug OFF
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma8-gcc-cmake-gen-aarch64-pub:
+  only:
+    refs:
+      - tags
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al8
+  tags:
+    - k8s-arm
+  stage: tar
+  needs:
+    - Alma8-gcc-cmake-gen-aarch64
+  dependencies:
+    - Alma8-gcc-cmake-gen-aarch64
+  script:
+    kind=cmake comp=gcc CI/tar.sh
+  artifacts:
+    paths:
+      - cern

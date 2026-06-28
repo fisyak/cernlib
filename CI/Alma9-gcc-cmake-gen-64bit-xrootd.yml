@@ -1,0 +1,38 @@
+Alma9-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: build
+  before_script:
+    - dnf config-manager --set-enabled crb
+    - dnf -y install make binutils sed gawk grep rpm rpmdevtools imake git gcc gcc-c++ gcc-gfortran gzip bc
+    - dnf -y install lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel  xbae xbae-devel tcsh
+    - dnf -y install lapack blas desktop-file-utils which wget bc automake  glibc-devel 
+    - dnf -y install gcc gcc-c++ gcc-gfortran  > rpm.log || (cat rpm.log && exit 1)
+    - dnf -y install libnsl  libnsl2-devel || true
+    - dnf -y install epel-release cmake cmake3 python3 openssl-libs openssl-devel chrpath || true 
+    - dnf -y install xrootd-client-libs xrootd-client-devel
+  script:
+    - CI/build.sh cmake tarball GNU nodebug ON
+  allow_failure:  false
+  artifacts:
+    paths:
+      - cern
+
+Alma9-gcc-cmake-gen-64bit-xrootd-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/linuxsupport/rpmci/builder-al9
+  stage: tar
+  needs:
+    - Alma9-gcc-cmake-gen-64bit-xrootd
+  dependencies:
+    - Alma9-gcc-cmake-gen-64bit-xrootd
+  script:
+    kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern

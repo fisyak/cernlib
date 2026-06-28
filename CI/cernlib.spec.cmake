@@ -35,7 +35,7 @@
 
 #define verdir {version}
 %define verdir 2026
-%define verdatadir 2026.01
+%define verdatadir 2026.06
 
 # data files should be the same and therefore parallel installable
 
@@ -600,7 +600,9 @@ touch --no-create %{_datadir}/icons/hicolor || :
 %endif
 
 %changelog
-* Wed Mar 5 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-01
+* Wed Jun 24 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-06
+- SPLIT renamed to SPLITDVN
+* Wed Mar 4 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-01
 - termio fix, affecting recent Fedora and Ubuntu versions
 * Tue Nov 25 2025 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2025-11
  - Multiple bug fixes
