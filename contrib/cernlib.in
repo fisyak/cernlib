@@ -97,7 +97,7 @@ find_sysdeps() {
 	fi
 
 	[ "$ARCH" = "AIX"   ] && SYSLIBS="$SYSLIBS -lld"
-	[ "$ARCH" = "Linux" ] && SYSLIBS="$SYSLIBS -lnsl -lcrypt -ldl -lgfortran"
+	[ "$ARCH" = "Linux" ] && SYSLIBS="$SYSLIBS -lcrypt -ldl -lgfortran"
 	[ "$ARCH" = "Darwin" ] && SYSLIBS="$SYSLIBS -ldl"
 
 	echo $SYSLIBS

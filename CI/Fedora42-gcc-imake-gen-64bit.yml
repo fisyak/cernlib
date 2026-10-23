@@ -1,7 +1,7 @@
 Fedora42-gcc-imake-gen-64bit:
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-fedora42:latest
   stage: build
   before_script:
     - dnf -y install lapack-devel blas-devel imake  libX11 libX11-devel libXaw-devel libXau-devel xbae xbae-devel tcsh
@@ -19,7 +19,7 @@ Fedora42-gcc-imake-gen-64bit-pub:
       - tags
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-fed42:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-fedora42:latest
   stage: tar
   dependencies:
     - Fedora42-gcc-imake-gen-64bit

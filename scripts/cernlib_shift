@@ -220,18 +220,18 @@
      fi
      if [ "$Msys" = "Linux" ] ; then
 	 if [ -e /usr/local/lib/libXrdPosix.so ]; then
-             CERNLIB="$CERNLIB -lnsl -lcrypt -ldl -L/usr/local/lib -lXrdPosix -lXrdPosixPreload"
+             CERNLIB="$CERNLIB -lcrypt -ldl -L/usr/local/lib -lXrdPosix -lXrdPosixPreload"
 	 else if  [ -e /usr/lib/libXrdPosix.so ]; then
-		  CERNLIB="$CERNLIB -lnsl -lcrypt -ldl -L/usr/lib -lXrdPosix -lXrdPosixPreload"
+		  CERNLIB="$CERNLIB -lcrypt -ldl -L/usr/lib -lXrdPosix -lXrdPosixPreload"
 	      else if  [ -e /usr/lib64/libXrdPosix.so ]; then
-		       CERNLIB="$CERNLIB -lnsl -lcrypt -ldl -L/usr/lib64 -lXrdPosix -lXrdPosixPreload"
+		       CERNLIB="$CERNLIB -lcrypt -ldl -L/usr/lib64 -lXrdPosix -lXrdPosixPreload"
 		   else
 		       XrdPosix=`find /usr/lib -name libXrdPosix.so`
 		       if [ -z $XrdPosix ]; then
-			   CERNLIB="$CERNLIB -lnsl -lcrypt -ldl"
+			   CERNLIB="$CERNLIB -lcrypt -ldl"
 		       else
 			   XrdPath=`dirname $XrdPosix`
-			   CERNLIB="$CERNLIB -lnsl -lcrypt -ldl -L$XrdPath -lXrdPosix -lXrdPosixPreload"
+			   CERNLIB="$CERNLIB -lcrypt -ldl -L$XrdPath -lXrdPosix -lXrdPosixPreload"
 		       fi
 		   fi
 	      fi

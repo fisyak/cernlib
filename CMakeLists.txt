@@ -625,7 +625,6 @@ set(NullParameter )
 if (APPLE)
   set(crypto )
   set(crypt )
-  set(nsl )
   set(Xm )
   SET(CERNLIB_LINUX 1)
   SET(CERNLIB_LNX 1)
@@ -663,8 +662,6 @@ if(LINUX OR SunOS)
   endif()
   endif()
   set(crypto ${OPENSSL_CRYPTO_LIBRARY})
-  find_library(nsl NAMES nsl nsl2 REQUIRED)
-  message(STATUS "CERNLIB: nsl=${nsl}")
   set(Xm Xm)
   set(Xbae Xbae)
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -997,12 +994,12 @@ if (APPLE)
   target_link_libraries(pawX11.dynamic PRIVATE pawlib kernlib graflib ${grafX11}
   packlib paw_motif code_motif mathlib ${libxrdposix}
   ${BLAS_LIBRARIES}
-  ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+  ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 else()
   target_link_libraries(pawX11.dynamic PRIVATE -Wl,--start-group pawlib kernlib graflib ${grafX11}
   packlib paw_motif code_motif mathlib -Wl,--end-group ${libxrdposix}
   ${BLAS_LIBRARIES}
-  ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+  ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 endif()
 target_include_directories(pawX11.dynamic PRIVATE ${PROJECT_SOURCE_DIR}/include )
 install(TARGETS pawX11.dynamic DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libs)
@@ -1011,11 +1008,11 @@ endif()
 ########################################################################
 add_executable(pawX11 ${pawX11_SRCS_F} )
 if (APPLE)
- target_link_libraries(pawX11 PRIVATE ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${X11_LIBRARIES} pawlib_static kernlib_static graflib_static ${grafX11}_static ${libxrdposix}
+ target_link_libraries(pawX11 PRIVATE ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${X11_LIBRARIES} pawlib_static kernlib_static graflib_static ${grafX11}_static ${libxrdposix}
      packlib_static paw_motif_static code_motif_static mathlib_static)
 else()
   target_link_libraries(pawX11 PRIVATE -Wl,--start-group pawlib_static kernlib_static graflib_static ${grafX11}_static packlib_static paw_motif_static code_motif_static mathlib_static -Wl,--end-group ${BLAS_LIBRARIES} ${libxrdposix}
-     ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+     ${LAPACK_lapack_LIBRARY} ${crypt} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 endif()
 target_include_directories(pawX11 PRIVATE ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS pawX11 DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libs)
@@ -1031,11 +1028,11 @@ add_executable(paw++.dynamic ${paw++_SRCS_F} )
 if (APPLE)
 target_link_libraries(paw++.dynamic PRIVATE  pawlib kernlib graflib ${grafX11}
  packlib paw_motif code_motif mathlib ${libxrdposix}
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 else()
 target_link_libraries(paw++.dynamic PRIVATE  -Wl,--start-group pawlib kernlib graflib ${grafX11}
  packlib paw_motif code_motif mathlib  -Wl,--end-group ${libxrdposix}
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 
 endif()
 target_include_directories(paw++.dynamic PRIVATE ${PROJECT_SOURCE_DIR}/include)
@@ -1046,11 +1043,11 @@ add_executable(paw++ ${paw++_SRCS_F} )
 if (APPLE)
   target_link_libraries(paw++ PRIVATE pawlib_static kernlib_static graflib_static ${grafX11}_static
    packlib_static paw_motif_static code_motif_static mathlib_static ${libxrdposix}
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 else()
   target_link_libraries(paw++ PRIVATE -Wl,--start-group pawlib_static kernlib_static graflib_static ${grafX11}_static
    packlib_static paw_motif_static code_motif_static mathlib_static -Wl,--end-group ${libxrdposix}
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${CMAKE_DL_LIBS})
 endif()
 target_include_directories(paw++ PRIVATE ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS paw++ DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libs)
@@ -1166,12 +1163,12 @@ if (APPLE)
 target_link_libraries(fatmen PRIVATE  pawlib_static kernlib_static graflib_static ${grafX11}_static packlib_static
 paw_motif_static
  code_motif_static mathlib_static
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${libxrdposix})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${libxrdposix})
 else()
 target_link_libraries(fatmen PRIVATE -Wl,--start-group pawlib_static kernlib_static graflib_static ${grafX11}_static packlib_static
 paw_motif_static
  code_motif_static mathlib_static -Wl,--end-group
-   ${BLAS_LIBRARIES} ${nsl} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${libxrdposix})
+   ${BLAS_LIBRARIES} ${LAPACK_lapack_LIBRARY} ${crypt} ${MOTIF_LIBRARIES} ${Xbae} ${X11_Xaw_LIB} ${X11_Xt_LIB} ${X11_LIBRARIES} ${libxrdposix})
 endif()
 target_include_directories(fatmen PRIVATE ${PROJECT_SOURCE_DIR}/include  )
 install(TARGETS fatmen DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT libs)

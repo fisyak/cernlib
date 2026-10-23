@@ -1,7 +1,7 @@
 Ubuntu26-gcc-cmake-gen-64bit-xrootd:
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu26:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu26:latest
   stage: build
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
@@ -25,7 +25,7 @@ Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub:
       - tags
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu26:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu26:latest
   stage: tar
   dependencies:
     - Ubuntu26-gcc-cmake-gen-64bit-xrootd

@@ -1,7 +1,7 @@
 Ubuntu24-gcc-imake-gen-64bit:
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu24:latest
   stage: build
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
@@ -25,7 +25,7 @@ Ubuntu24-gcc-imake-gen-64bit-pub:
       - tags
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu24:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu24:latest
   stage: tar
   needs:
     - Ubuntu24-gcc-imake-gen-64bit

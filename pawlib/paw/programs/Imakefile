@@ -44,10 +44,10 @@ CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter,-G Moti
 #if defined(CERNLIB_MACOSX)
 CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter, pawlib-lesstif pawlib graflib/Motif packlib-lesstif blas kernlib packlib kernlib mathlib packlib -lXm -lXt -lX11 -lXaw  -ldl)
 #else
-CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter, pawlib-lesstif pawlib graflib/Motif packlib-lesstif blas kernlib packlib kernlib mathlib packlib -lXm -lXt -lX11 -lXaw -lnsl -lcrypt -ldl)
+CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter, pawlib-lesstif pawlib graflib/Motif packlib-lesstif blas kernlib packlib kernlib mathlib packlib -lXm -lXt -lX11 -lXaw -lcrypt -ldl)
 #endif
 #else
-CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter, pawlib-lesstif pawlib graflib/Motif packlib-lesstif blas kernlib packlib kernlib mathlib packlib -lXm -lXt -lX11 -lXaw -lXbae -lnsl -lcrypt -ldl)
+CernlibFortranProgramTarget(paw++,0pamainm.o,NullParameter,NullParameter, pawlib-lesstif pawlib graflib/Motif packlib-lesstif blas kernlib packlib kernlib mathlib packlib -lXm -lXt -lX11 -lXaw -lXbae -lcrypt -ldl)
 #endif
 #endif
 

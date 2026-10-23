@@ -1,7 +1,7 @@
 Ubuntu20-gcc-cmake-gen-64bit:
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu20:latest
   stage: build
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
@@ -24,7 +24,7 @@ Ubuntu20-gcc-cmake-gen-64bit-pub:
       - tags
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu20:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu20:latest
   stage: tar
   needs:
     - Ubuntu20-gcc-cmake-gen-64bit

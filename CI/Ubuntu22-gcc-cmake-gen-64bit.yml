@@ -1,7 +1,7 @@
 Ubuntu22-gcc-cmake-gen-64bit:
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu22:latest
   stage: build
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
@@ -24,7 +24,7 @@ Ubuntu22-gcc-cmake-gen-64bit-pub:
       - tags
   tags:
     - k8s-default
-  image: gitlab-registry.cern.ch/delphi/docker/builder-ubuntu22:latest
+  image: gitlab-registry.cern.ch/dphep/cernlib/docker/builder-ubuntu22:latest
   stage: tar
   needs:
     - Ubuntu22-gcc-cmake-gen-64bit
