@@ -1,0 +1,33 @@
+opensuse_l16-gcc-cmake-gen-64bit-xrootd:
+  tags:
+    - k8s-default
+  stage: build
+  image: gitlab-registry.cern.ch/delphi/docker/builder-opensuse-leap-16:latest
+  before_script:
+    - zypper -n refresh; zypper -n update
+    - zypper -n install gcc-c++ file glew-devel gcc-fortran tcsh make
+    - zypper -n install libopenssl-devel libopenssl-3-devel
+    - zypper -n install file xrootd-client-libs xrootd-client-devel
+  script:
+    - CI/build.sh cmake tarball GNU nodebug ON
+  artifacts:
+    paths:
+      - cern
+
+opensuse_l16-gcc-cmake-gen-64bit-xrootd-pub:
+  only:
+    refs:
+      - tags
+  tags:
+    - k8s-default
+  image: gitlab-registry.cern.ch/delphi/docker/builder-opensuse-leap-16:latest
+  stage: tar
+  dependencies:
+    - opensuse_l16-gcc-cmake-gen-64bit-xrootd
+  needs:
+    - opensuse_l16-gcc-cmake-gen-64bit-xrootd
+  script:
+    kind=cmake comp=gcc xrd=1 CI/tar.sh
+  artifacts:
+    paths:
+      - cern
