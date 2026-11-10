@@ -42,6 +42,8 @@ include:
   - CI/Fedora43-gcc-cmake-gen-64bit.yml
   - CI/Fedora44-gcc-cmake-gen-64bit-xrootd.yml
   - CI/Fedora44-gcc-cmake-gen-64bit.yml
+  - CI/opensusue_l16-gcc-cmake-gen.yml
+  - CI/opensusue_l16-gcc-cmake-gen-xrootd.yml
   - CI/SL4-g77-cmake-gen-32bit.yml
   - CI/SL4-g77-cmake-gen-64bit.yml
   - CI/SL4-g77-cmake-rpm-64bit.yml

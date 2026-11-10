@@ -107,11 +107,9 @@ CUS    CALL VZERO (NQLN, 28)
       NQNS = 0
       NQND = 0
       CALL VZERO(NQIOCH, 16)
-      NQLNOR = 0
-      NQLMAX = 0
-      NQLPTH = 0
-      NQRMAX = 0
-      IQLPCT = 0
+      LQSUP = 0
+      NQBIA = 0
+      CALL VZERO(NQIOSV, 3)
 CUS      CALL VZERO (LQJZ, 16)
       LQJZ = 0
       LQUP = 0

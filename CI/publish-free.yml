@@ -73,6 +73,7 @@ publish_64_rh:
     - SL5-gcc-imake-gen-64bit-pub
     - SL6-gcc-cmake-gen-64bit-pub
     - SL6-gcc-imake-gen-64bit-pub
+    - opensuse_l16-gcc-cmake-gen-64bit-pub
   needs:
     - Alma8-gcc-cmake-gen-64bit-pub
     - Alma8-gcc-cmake-gen-aarch64-pub
@@ -94,6 +95,7 @@ publish_64_rh:
     - SL5-gcc-imake-gen-64bit-pub
     - SL6-gcc-cmake-gen-64bit-pub
     - SL6-gcc-imake-gen-64bit-pub
+    - opensuse_l16-gcc-cmake-gen-64bit-pub
   before_script:
     - dnf -y install krb5-workstation bind-utils
   script:
@@ -162,6 +164,7 @@ publish_xrd:
     - Ubuntu24-gcc-cmake-gen-64bit-xrootd-pub
     - Ubuntu24-gcc-imake-gen-64bit-xrootd-pub
     - Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub
+    - opensuse_l16-gcc-cmake-gen-64bit-xrootd-pub
   needs:
     - Alma10-gcc-cmake-gen-64bit-xrootd-pub
     - Alma10-gcc-cmake-gen-aarch64-xrootd-pub
@@ -178,6 +181,7 @@ publish_xrd:
     - Ubuntu24-gcc-cmake-gen-64bit-xrootd-pub
     - Ubuntu24-gcc-imake-gen-64bit-xrootd-pub
     - Ubuntu26-gcc-cmake-gen-64bit-xrootd-pub
+    - opensuse_l16-gcc-cmake-gen-64bit-xrootd-pub
   before_script:
     - dnf -y install krb5-workstation bind-utils
   script:

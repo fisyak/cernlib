@@ -88,7 +88,7 @@
 # data files should be the same and therefore parallel installable
 
 Name:          %{?compat}cernlib%{?compiler}
-Version:       2026.06
+Version:       2026.11
 Release:       1%{?dist}
 Summary:       General purpose CERN library
 Group:         Development/Libraries
@@ -140,7 +140,7 @@ BuildRequires: /usr/bin/g77
 %endif
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:    2026.06_src-free.tar.gz
+Source0:    2026.11_src-free.tar.gz
 
 %description
 CERN program library is a large collection of general purpose libraries
@@ -991,6 +991,9 @@ touch --no-create %{_datadir}/icons/hicolor || :
 %endif
 
 %changelog
+* Sun Nov 01 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-11
+- Fix bug in Zebra
+- Remove dependency on nsl
 * Wed Jun 24 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-06
 - SPLIT renamed to SPLITDVN
 * Wed Mar 4 2026 Ulrich Schwickerath <ulrich.schwickerath@cern.ch> 2026-01

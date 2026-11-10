@@ -1,4 +1,4 @@
-# CERNLIB 2026.06
+# CERNLIB 2026.11
 
 This repository contains all CERNLIB modules with history in a single place.
 It is based on the last official release CERNLIB 2006a, with additional patches to support 64bit, mainly developed by Debian.
@@ -27,6 +27,8 @@ Important changes applied in this repository:
 - Fix termio.h, affecting recent Ubuntu and Fedora versions
 - Redone CI
 - Renaming SPLIT into SPLITDVN to avoid a clash with intrinsic function name
+- Remove dependency on libnsl/libnsl2
+- Fix bug in Zebra, resulting in infinite loops in some corner cases
 
 ## Breaking changes
 The implementation of mathlib/gen/e/dspin2.F looks wrong and has been corrected in CERNLIB tags 2023.08.X and newer.

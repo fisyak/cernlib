@@ -13,7 +13,7 @@ BEAROPTION="$4"
 CERNLIB_XROOTD="$5"
 #[anything, bear = use bear, bear3 = use bear version 3 ]
 #CERNLIB version
-CL_VERSION=2026.06
+CL_VERSION=2026.11
 
 if [ "$TARGET" != "rpm" ] && [ "$TARGET" != "brew" ]; then
 echo "$TMP"
@@ -167,7 +167,7 @@ if [ "$TARGET" != "rpm" ] && [ "$TARGET" != "brew" ]; then
       find ./ -name CMakeLists.txt -exec "$SED" -i -e 's@list(TRANSFORM@list_TRANSFORM(@g' -e 's@list(JOIN@list_JOIN(@g' {} \;
     fi
     mkdir -p "BUILD$TOOLCHAIN"
-    cd "BUILD$TOOLCHAIN" || exit
+    cd "BUILD$TOOLCHAIN" || exitxsy
     if [ "$TARGET" != "rpm" ] && [ "$TARGET" != "brew" ]; then
         "$CMAKE" ../ "${extra_args[@]}"  -DCERNLIB_NO_SUFFIX=1 -DCERNLIB_2022=yes -DCERNLIB_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_COMPILER="${CC}" -DCERNLIB_BUILD_SHARED=OFF -DCMAKE_Fortran_COMPILER="${FC}" -DCERNLIB_ENABLE_TEST=ON -DCMAKE_INSTALL_PREFIX=${TOP}/cern/${CL_VERSION} -DCERNLIB_XROOTD="${CERNLIB_XROOTD}"
         if [ "$BEAR" ]; then
